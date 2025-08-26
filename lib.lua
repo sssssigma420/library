@@ -397,7 +397,8 @@ end
 -- Section creator for page
 local function createSection(page, title)
     local Section = Instance.new("Frame")
-    Section.Size = UDim2.new(1, 0, 0, 200)
+    Section.Size = UDim2.new(1, 0, 0, 0)
+    Section.AutomaticSize = Enum.AutomaticSize.Y
     Section.BackgroundColor3 = Theme.Panel
     Section.BorderSizePixel = 0
     Section.Parent = page
@@ -429,7 +430,8 @@ local function createSection(page, title)
 
     local Body = Instance.new("Frame")
     Body.Name = "Body"
-    Body.Size = UDim2.new(1, -24, 1, -64)
+    Body.Size = UDim2.new(1, -24, 0, 0)
+    Body.AutomaticSize = Enum.AutomaticSize.Y
     Body.Position = UDim2.new(0, 12, 0, 50)
     Body.BackgroundTransparency = 1
     Body.Parent = Section
