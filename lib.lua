@@ -674,63 +674,37 @@ function UI:CreateWindow(title)
 end
 
 function UI:CreateTab(name)
-    name = tostring(name or "Tab")
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, 0, 0, 40)
+    Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Button.Text = name
+    Button.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Button.Font = Enum.Font.Gotham
+    Button.TextSize = 14
+    Button.Parent = Sidebar:FindFirstChild("TabButtons") or Sidebar
 
-    local Button = createTabButton(name)
-    local Page = createPage()
+    local TabFrame = Instance.new("ScrollingFrame")
+    TabFrame.Size = UDim2.new(1, 0, 1, -40)
+    TabFrame.Position = UDim2.new(0, 0, 0, 40)
+    TabFrame.BackgroundTransparency = 1
+    TabFrame.ScrollBarThickness = 4
+    TabFrame.Visible = false
+    TabFrame.Parent = TabContainer
 
-    local TabObject = {
-        Button = Button,
-        Page = Page,
-        CreateSection = function(self, secTitle)
-            local Section, Body = createSection(Page, secTitle or "Section")
+    local UIList = Instance.new("UIListLayout")
+    UIList.Padding = UDim.new(0, 10)
+    UIList.Parent = TabFrame
 
-            local SectionAPI = {}
-
-            function SectionAPI:AddLabel(text)
-                return newLabel(Body, text)
-            end
-
-            function SectionAPI:AddToggle(text, default, cb)
-                return makeToggle(Body, text or "Toggle", default, cb)
-            end
-
-            function SectionAPI:AddSlider(text, min, max, default, cb)
-                return makeSlider(Body, text or "Slider", min or 0, max or 100, default or 0, cb)
-            end
-
-            function SectionAPI:AddDropdown(text, options, default, cb)
-                options = options or {"Option A","Option B"}
-                return makeDropdown(Body, text or "Dropdown", options, default or options[1], cb)
-            end
-
-            function SectionAPI:AddKeybind(text, defaultKey, cb)
-                return makeKeybind(Body, text or "Keybind", defaultKey or Enum.KeyCode.E, cb)
-            end
-
-            function SectionAPI:AddColorPicker(text, default, cb)
-                return makeColorPicker(Body, text or "Color", default or Theme.Accent, cb)
-            end
-
-            return SectionAPI
-        end
-    }
-
-    Tabs[name] = TabObject
+    Tabs[name] = TabFrame
 
     Button.MouseButton1Click:Connect(function()
-        if CurrentTab then
-            CurrentTab.Page.Visible = false
-            CurrentTab.Button.TextColor3 = Theme.Muted
-        end
-        CurrentTab = TabObject
-        Page.Visible = true
-        Button.TextColor3 = Color3.new(1,1,1)
+        for _, t in pairs(Tabs) do t.Visible = false end
+        TabFrame.Visible = true
     end)
 
-    -- First tab auto-select
-    if not CurrentTab then
-        Button:MouseButton1Click()
+    -- Auto-select first created tab
+    if not next(Tabs).Visible then
+        TabFrame.Visible = true
     end
 
     return TabObject
