@@ -200,25 +200,32 @@ local userStroke = Instance.new("UIStroke", UserProfile)
 userStroke.Thickness = 1
 userStroke.Color = Theme.Stroke
 
+-- Sidebar player info block
 local PlayerInfo = Instance.new("Frame")
-PlayerInfo.Size = UDim2.new(1,0,0,90)
-PlayerInfo.Position = UDim2.new(0,0,1,-90)
+PlayerInfo.Name = "PlayerInfo"
+PlayerInfo.Size = UDim2.new(1, 0, 0, 90)
+PlayerInfo.Position = UDim2.new(0, 0, 1, -90)
 PlayerInfo.BackgroundTransparency = 1
 PlayerInfo.Parent = Sidebar
 
 local Avatar = Instance.new("ImageLabel")
-Avatar.Size = UDim2.new(0,64,0,64)
-Avatar.Position = UDim2.new(0,10,0,0)
+Avatar.Name = "Avatar"
+Avatar.Size = UDim2.new(0, 64, 0, 64)
+Avatar.Position = UDim2.new(0, 10, 0, 0)
 Avatar.BackgroundTransparency = 1
-Avatar.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png", Players.LocalPlayer.UserId)
+Avatar.Image = string.format(
+    "https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
+    game.Players.LocalPlayer.UserId
+)
 Avatar.Parent = PlayerInfo
 
 local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1,-20,0,20)
-Username.Position = UDim2.new(0,10,0,68)
+Username.Name = "Username"
+Username.Size = UDim2.new(1, -20, 0, 20)
+Username.Position = UDim2.new(0, 10, 0, 68)
 Username.BackgroundTransparency = 1
-Username.Text = Players.LocalPlayer.Name
-Username.TextColor3 = Color3.fromRGB(255,255,255)
+Username.Text = game.Players.LocalPlayer.Name
+Username.TextColor3 = Color3.fromRGB(255, 255, 255)
 Username.Font = Enum.Font.GothamSemibold
 Username.TextSize = 14
 Username.TextXAlignment = Enum.TextXAlignment.Left
@@ -731,59 +738,54 @@ function UI:CreateWindow(title)
 end
 
 -- returns a TabObject with CreateSection()
-function UI:CreateTab(name, icon)
-    if Tabs[name] then
-        return Tabs[name].TabObject
-    end
+function UI:CreateTab(name)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -20, 0, 40)
+    Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Button.Text = name
+    Button.TextColor3 = Color3.fromRGB(220, 220, 220)
+    Button.Font = Enum.Font.Gotham
+    Button.TextSize = 14
+    Button.Parent = Sidebar
 
-    local Button = createTabButton(name, icon)
-    local Page = createPage()
+    -- Tab content frame
+    local TabFrame = Instance.new("ScrollingFrame")
+    TabFrame.Size = UDim2.new(1, -20, 1, -20)
+    TabFrame.Position = UDim2.new(0, 10, 0, 10)
+    TabFrame.BackgroundTransparency = 1
+    TabFrame.ScrollBarThickness = 4
+    TabFrame.Visible = false
+    TabFrame.Parent = TabContainer
 
-    local TabObject = {}
-    Tabs[name] = { Button = Button, Page = Page, TabObject = TabObject }
+    local Layout = Instance.new("UIListLayout", TabFrame)
+    Layout.Padding = UDim.new(0, 10)
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
 
+    -- Show this tab on click
     Button.MouseButton1Click:Connect(function()
-        switchTab(name)
+        for _, frame in pairs(TabContainer:GetChildren()) do
+            if frame:IsA("ScrollingFrame") then
+                frame.Visible = false
+            end
+        end
+        for _, btn in pairs(Sidebar:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            end
+        end
+        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        TabFrame.Visible = true
     end)
 
-    -- Auto-select first created tab
-    if not CurrentTab then
-        switchTab(name)
+    -- If it's the first tab, auto-select it
+    if #Sidebar:GetChildren() == 1 then
+        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        TabFrame.Visible = true
     end
 
-    function TabObject:CreateSection(title)
-        local Section, Body = createSection(Page, title or "")
-        local SectionAPI = {}
-
-        function SectionAPI:AddLabel(text, size)
-            return newLabel(Body, text, size)
-        end
-
-        function SectionAPI:AddToggle(txt, default, callback)
-            return makeToggle(Body, txt, default, callback)
-        end
-
-        function SectionAPI:AddSlider(txt, min, max, default, callback)
-            return makeSlider(Body, txt, min, max, default, callback)
-        end
-
-        function SectionAPI:AddDropdown(txt, options, default, callback)
-            return makeDropdown(Body, txt, options, default, callback)
-        end
-
-        function SectionAPI:AddKeybind(txt, defaultKey, callback)
-            return makeKeybind(Body, txt, defaultKey, callback)
-        end
-
-        function SectionAPI:AddColorPicker(txt, default, callback)
-            return makeColorPicker(Body, txt, default, callback)
-        end
-
-        return SectionAPI
-    end
-
-    return TabObject
+    return TabFrame
 end
+
 
 -- Visibility / toggle with RightShift
 local Visible = true
