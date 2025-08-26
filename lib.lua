@@ -6,7 +6,6 @@
 --   local UI = loadfile("lib_full.lua")()
 --   UI:CreateWindow("Title")
 --   local legit = UI:CreateTab("Legitbot")
---   local s = legit:CreateSection("Main")
 --   s:AddToggle("Enabled", false, function(v) print(v) end)
 --   s:AddSlider("FOV", 20, 400, 120, function(v) print(v) end)
 --   s:AddDropdown("AimPart", {"Head","HumanoidRootPart"}, "Head", function(v) print(v) end)
