@@ -448,210 +448,195 @@ local function createSection(page, title)
     return Section, Body
 end
 
--- small label helper
+--// HELPERS
+local function noop() end
+
 local function newLabel(parent, text, size)
     local lbl = Instance.new("TextLabel")
     lbl.BackgroundTransparency = 1
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Size = UDim2.new(1, 0, 1, 0)
     lbl.Font = Enum.Font.Gotham
+    lbl.Text = text
     lbl.TextSize = size or 14
-    lbl.TextColor3 = Theme.Text
-    lbl.Text = text or ""
-    lbl.Size = UDim2.new(1, 0, 0, size and math.max(22, size + 6) or 20)
+    lbl.TextColor3 = Color3.fromRGB(220,220,220)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.Parent = parent
     return lbl
 end
 
--- Base button (styled)
 local function makeButtonBase(parent, height)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, height or 32)
-    btn.BackgroundColor3 = Color3.fromRGB(36, 36, 38)
-    btn.TextColor3 = Theme.Text
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 14
-    btn.AutoButtonColor = false
-    btn.Parent = parent
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    local st = Instance.new("UIStroke", btn)
-    st.Color = Theme.Stroke
-    st.Thickness = 1
-    btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(42,42,44)}):Play() end)
-    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(36,36,38)}):Play() end)
-    return btn
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0, 100, 0, height or 22) -- not full width
+    Btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    Btn.TextColor3 = Color3.fromRGB(230,230,230)
+    Btn.Font = Enum.Font.Gotham
+    Btn.TextSize = 14
+    Btn.AutoButtonColor = false
+    Btn.Parent = parent
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+    return Btn
 end
 
--- Toggle control
--- Toggle
-local function makeToggle(parent, txt, def, cb)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 160, 0, 26)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -50, 1, 0)
-    label.Position = UDim2.new(0, 5, 0, 0)
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 12
-    label.TextColor3 = Theme.Text
-    label.Text = txt
-    label.Parent = frame
-
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 40, 0, 20)
-    button.Position = UDim2.new(1, -45, 0.5, -10)
-    button.BackgroundColor3 = def and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 0, 50)
-    button.Text = def and "ON" or "OFF"
-    button.Font = Enum.Font.Gotham
-    button.TextSize = 11
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Parent = frame
-
-    local state = def
-    button.MouseButton1Click:Connect(function()
-        state = not state
-        button.Text = state and "ON" or "OFF"
-        button.BackgroundColor3 = state and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 0, 50)
-        if cb then cb(state) end
-    end)
-
-    return frame
-end
-
-local function makeSlider(parent, txt, min, max, def, cb)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 160, 0, 36)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -10, 0, 16)
-    label.Position = UDim2.new(0, 5, 0, 0)
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 12
-    label.TextColor3 = Theme.Text
-    label.Text = txt .. ": " .. def
-    label.Parent = frame
-
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1, -10, 0, 5)
-    bar.Position = UDim2.new(0, 5, 0, 20)
-    bar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    bar.BorderSizePixel = 0
-    bar.Parent = frame
-
-    local fill = Instance.new("Frame")
-    fill.Size = UDim2.new((def-min)/(max-min), 0, 1, 0)
-    fill.BackgroundColor3 = Theme.Accent
-    fill.BorderSizePixel = 0
-    fill.Parent = bar
-
-    local dragging = false
-    bar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
-    end)
-    bar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local rel = math.clamp((input.Position.X - bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
-            local value = math.floor(min + (max-min)*rel)
-            fill.Size = UDim2.new(rel,0,1,0)
-            label.Text = txt .. ": " .. value
-            if cb then cb(value) end
-        end
-    end)
-
-    return frame
-end
-
-
--- Dropdown
-local function makeDropdown(parent, txt, opts, def, cb)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 160, 0, 26)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 5, 0, 0)
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 12
-    label.TextColor3 = Theme.Text
-    label.Text = txt
-    label.Parent = frame
-
-    local dropdown = Instance.new("TextButton")
-    dropdown.Size = UDim2.new(0, 80, 0, 20)
-    dropdown.Position = UDim2.new(1, -85, 0.5, -10)
-    dropdown.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    dropdown.Text = def or opts[1]
-    dropdown.Font = Enum.Font.Gotham
-    dropdown.TextSize = 11
-    dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
-    dropdown.Parent = frame
-
-    dropdown.MouseButton1Click:Connect(function()
-        local nextIndex = table.find(opts, dropdown.Text) % #opts + 1
-        dropdown.Text = opts[nextIndex]
-        if cb then cb(dropdown.Text) end
-    end)
-
-    return frame
-end
--- Keybind
-local function makeKeybind(parent, label, defaultKey, callback)
+--// TOGGLE
+local function makeToggle(parent, label, default, callback)
     callback = callback or noop
-    defaultKey = defaultKey or Enum.KeyCode.RightShift
-
     local Wrap = Instance.new("Frame")
-    Wrap.Size = UDim2.new(1, 0, 0, 36)
+    Wrap.Size = UDim2.new(1, 0, 0, 26)
     Wrap.BackgroundTransparency = 1
     Wrap.Parent = parent
 
     local Lbl = newLabel(Wrap, label, 14)
-    Lbl.Position = UDim2.new(0, 0, 0, 0)
 
-    local Btn = makeButtonBase(Wrap, 28)
-    Btn.Position = UDim2.new(0, 0, 0, 6)
-    Btn.Text = defaultKey.Name
+    local Btn = makeButtonBase(Wrap, 20)
+    Btn.Position = UDim2.new(1, -50, 0.5, -10)
+    Btn.Size = UDim2.new(0, 40, 0, 20)
+    Btn.Text = ""
+    Btn.BackgroundColor3 = default and Color3.fromRGB(100,200,100) or Color3.fromRGB(60,60,60)
 
-    local waiting = false
+    local state = default
     Btn.MouseButton1Click:Connect(function()
-        waiting = true
-        Btn.Text = "..."
-    end)
-
-    local current = defaultKey
-    local conn
-    conn = UserInputService.InputBegan:Connect(function(i, gpe)
-        if waiting and not gpe then
-            if i.UserInputType == Enum.UserInputType.Keyboard then
-                current = i.KeyCode
-                Btn.Text = current.Name
-                waiting = false
-                callback(current)
-            end
-        end
+        state = not state
+        Btn.BackgroundColor3 = state and Color3.fromRGB(100,200,100) or Color3.fromRGB(60,60,60)
+        callback(state)
     end)
 
     return {
-        Get = function() return current end,
-        Set = function(_, key) current = key; Btn.Text = key.Name end,
-        Disconnect = function()
-        if conn then conn:Disconnect() end
+        Set = function(_, v)
+            state = v
+            Btn.BackgroundColor3 = state and Color3.fromRGB(100,200,100) or Color3.fromRGB(60,60,60)
         end
-    }  
+    }
 end
+
+--// SLIDER
+local function makeSlider(parent, label, min, max, default, callback)
+    callback = callback or noop
+    local Wrap = Instance.new("Frame")
+    Wrap.Size = UDim2.new(1, 0, 0, 32)
+    Wrap.BackgroundTransparency = 1
+    Wrap.Parent = parent
+
+    local Lbl = newLabel(Wrap, label.." ("..tostring(default)..")", 14)
+
+    local Bar = Instance.new("Frame")
+    Bar.Size = UDim2.new(0, 140, 0, 6)
+    Bar.Position = UDim2.new(1, -150, 1, -12)
+    Bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    Bar.Parent = Wrap
+    Instance.new("UICorner", Bar).CornerRadius = UDim.new(0, 4)
+
+    local Fill = Instance.new("Frame")
+    Fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+    Fill.BackgroundColor3 = Color3.fromRGB(100,200,100)
+    Fill.Parent = Bar
+    Instance.new("UICorner", Fill).CornerRadius = UDim.new(0, 4)
+
+    local dragging = false
+    local function setValue(v)
+        v = math.clamp(v, min, max)
+        Fill.Size = UDim2.new((v-min)/(max-min), 0, 1, 0)
+        Lbl.Text = label.." ("..math.floor(v)..")"
+        callback(v)
+    end
+    setValue(default)
+
+    Bar.InputBegan:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 then
+            dragging = true
+            local ratio = (i.Position.X-Bar.AbsolutePosition.X)/Bar.AbsoluteSize.X
+            setValue(min+(max-min)*ratio)
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(i)
+        if dragging and i.UserInputType==Enum.UserInputType.MouseMovement then
+            local ratio = (i.Position.X-Bar.AbsolutePosition.X)/Bar.AbsoluteSize.X
+            setValue(min+(max-min)*ratio)
+        end
+    end)
+    game:GetService("UserInputService").InputEnded:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
+    end)
+
+    return { Set = function(_, v) setValue(v) end }
+end
+
+
+
+--// DROPDOWN
+local function makeDropdown(parent, label, options, default, callback)
+    callback = callback or noop
+    local Wrap = Instance.new("Frame")
+    Wrap.Size = UDim2.new(1, 0, 0, 32)
+    Wrap.BackgroundTransparency = 1
+    Wrap.Parent = parent
+
+    local Lbl = newLabel(Wrap, label, 14)
+
+    local Btn = makeButtonBase(Wrap, 20)
+    Btn.Position = UDim2.new(1, -110, 0.5, -10)
+    Btn.Size = UDim2.new(0, 100, 0, 20)
+    Btn.Text = default
+
+    local DropdownFrame = Instance.new("Frame")
+    DropdownFrame.Size = UDim2.new(0, 100, 0, #options*20)
+    DropdownFrame.Position = UDim2.new(1, -110, 0, 26)
+    DropdownFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    DropdownFrame.Visible = false
+    DropdownFrame.Parent = Wrap
+
+    local layout = Instance.new("UIListLayout", DropdownFrame)
+    layout.Padding = UDim.new(0,2)
+
+    for _,opt in ipairs(options) do
+        local optBtn = makeButtonBase(DropdownFrame, 20)
+        optBtn.Size = UDim2.new(1,0,0,20)
+        optBtn.Text = opt
+        optBtn.MouseButton1Click:Connect(function()
+            Btn.Text = opt
+            DropdownFrame.Visible = false
+            callback(opt)
+        end)
+    end
+
+    Btn.MouseButton1Click:Connect(function()
+        DropdownFrame.Visible = not DropdownFrame.Visible
+    end)
+
+    return { Set = function(_, v) Btn.Text=v; callback(v) end }
+end
+
+--// KEYBIND
+local function makeKeybind(parent, label, defaultKey, callback)
+    callback = callback or noop
+    local Wrap = Instance.new("Frame")
+    Wrap.Size = UDim2.new(1, 0, 0, 26)
+    Wrap.BackgroundTransparency = 1
+    Wrap.Parent = parent
+
+    local Lbl = newLabel(Wrap, label, 14)
+
+    local Btn = makeButtonBase(Wrap, 20)
+    Btn.Position = UDim2.new(1, -80, 0.5, -10)
+    Btn.Size = UDim2.new(0, 70, 0, 20)
+    Btn.Text = defaultKey.Name
+
+    local listening = false
+    Btn.MouseButton1Click:Connect(function()
+        listening = true
+        Btn.Text = "..."
+    end)
+
+    game:GetService("UserInputService").InputBegan:Connect(function(input, gpe)
+        if listening and not gpe and input.UserInputType==Enum.UserInputType.Keyboard then
+            listening = false
+            Btn.Text = input.KeyCode.Name
+            callback(input.KeyCode)
+        end
+    end)
+
+    return { Set = function(_, k) Btn.Text=k.Name; callback(k) end }
+end
+
 
 -- Color Picker (compact version)
 local function makeColorPicker(parent, label, defaultColor, callback)
