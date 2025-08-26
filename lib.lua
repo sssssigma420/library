@@ -5,7 +5,6 @@
 -- API:
 --   local UI = loadfile("lib_full.lua")()
 --   UI:CreateWindow("Title")
---   local legit = UI:CreateTab("Legitbot")
 --   s:AddToggle("Enabled", false, function(v) print(v) end)
 --   s:AddSlider("FOV", 20, 400, 120, function(v) print(v) end)
 --   s:AddDropdown("AimPart", {"Head","HumanoidRootPart"}, "Head", function(v) print(v) end)
@@ -921,12 +920,6 @@ function UI:SetAccent(color)
     applyAccent(color)
 end
 
--- Create default tabs and empty sections (Legitbot first)
-local defaultTabs = {"Legitbot", "Visuals", "Misc", "Settings"}
-for _, tname in ipairs(defaultTabs) do
-    local t = UI:CreateTab(tname)
-    t:CreateSection(tname) -- empty section placeholder
-end
 
 -- ensure user avatar/name stay updated if player changes display name or avatar
 Players.PlayerRemoving:Connect(function(plr)
