@@ -159,6 +159,22 @@ TabButtons.Position = UDim2.new(0, 0, 0, 96)
 TabButtons.BackgroundTransparency = 1
 TabButtons.Parent = Sidebar
 
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(1, -20, 0, 40)
+Button.Position = UDim2.new(0, 10, 0, (SidebarLayout.AbsoluteContentSize.Y)) -- UIListLayout handles spacing
+Button.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Button.Text = name
+Button.TextColor3 = Color3.fromRGB(220,220,220)
+Button.Font = Enum.Font.Gotham
+Button.TextSize = 14
+Button.Parent = Sidebar
+
+-- Add spacing
+local SidebarLayout = Sidebar:FindFirstChild("UIListLayout") or Instance.new("UIListLayout", Sidebar)
+SidebarLayout.Padding = UDim.new(0,5)
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+
 local TabPadding = Instance.new("UIPadding", TabButtons)
 TabPadding.PaddingTop = UDim.new(0, 6)
 TabPadding.PaddingLeft = UDim.new(0, 10)
@@ -184,25 +200,30 @@ local userStroke = Instance.new("UIStroke", UserProfile)
 userStroke.Thickness = 1
 userStroke.Color = Theme.Stroke
 
+local PlayerInfo = Instance.new("Frame")
+PlayerInfo.Size = UDim2.new(1,0,0,90)
+PlayerInfo.Position = UDim2.new(0,0,1,-90)
+PlayerInfo.BackgroundTransparency = 1
+PlayerInfo.Parent = Sidebar
+
 local Avatar = Instance.new("ImageLabel")
-Avatar.Size = UDim2.new(0, 56, 0, 56)
-Avatar.Position = UDim2.new(0, 10, 0, 10)
+Avatar.Size = UDim2.new(0,64,0,64)
+Avatar.Position = UDim2.new(0,10,0,0)
 Avatar.BackgroundTransparency = 1
-Avatar.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png", LocalPlayer.UserId)
-Avatar.Parent = UserProfile
-Instance.new("UICorner", Avatar).CornerRadius = UDim.new(0, 6)
+Avatar.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png", Players.LocalPlayer.UserId)
+Avatar.Parent = PlayerInfo
 
 local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1, -76, 0, 56)
-Username.Position = UDim2.new(0, 76, 0, 10)
+Username.Size = UDim2.new(1,-20,0,20)
+Username.Position = UDim2.new(0,10,0,68)
 Username.BackgroundTransparency = 1
+Username.Text = Players.LocalPlayer.Name
+Username.TextColor3 = Color3.fromRGB(255,255,255)
 Username.Font = Enum.Font.GothamSemibold
 Username.TextSize = 14
-Username.TextColor3 = Theme.Text
 Username.TextXAlignment = Enum.TextXAlignment.Left
-Username.TextYAlignment = Enum.TextYAlignment.Center
-Username.Text = LocalPlayer.Name
-Username.Parent = UserProfile
+Username.Parent = PlayerInfo
+
 
 local Subtle = Instance.new("TextLabel")
 Subtle.Size = UDim2.new(1, -76, 0, 20)
