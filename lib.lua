@@ -22,6 +22,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
+
 -- Theme (modifiable)
 local Theme = {
     Bg = Color3.fromRGB(18, 18, 18),
@@ -55,7 +56,7 @@ end
 
 -- Root ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "SketchUI"
+ScreenGui.Name = "Vetrion.vip"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -67,12 +68,58 @@ end)
 -- Main window
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.new(0, 920, 0, 580)
+Main.Size = UDim2.new(0, 920, 0, 490)
 Main.Position = UDim2.fromScale(0.5, 0.5)
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
 Main.BackgroundColor3 = Theme.Bg
 Main.BorderSizePixel = 0
 Main.Parent = ScreenGui
+Main.Visible = false -- start hidden
+
+-- Logo (centered image as "loading screen")
+local Logo = Instance.new("ImageLabel")
+Logo.AnchorPoint = Vector2.new(0.5, 0.5)
+Logo.Position = UDim2.fromScale(0.5, 0.5)
+Logo.Size = UDim2.new(0, 120, 0, 120)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://133603881881804" -- your picture
+Logo.ZIndex = 9999
+Logo.Parent = ScreenGui
+
+-- Whoosh Sound
+local Whoosh = Instance.new("Sound")
+Whoosh.SoundId = "rbxassetid://624706518"
+Whoosh.Volume = 1
+Whoosh.Parent = Logo
+
+-- Tweens
+local tweenIn = TweenService:Create(
+    Logo,
+    TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    {Size = UDim2.new(0, 140, 0, 140)}
+)
+local tweenOut = TweenService:Create(
+    Logo,
+    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+    {ImageTransparency = 1}
+)
+
+-- Sequence
+task.spawn(function()
+    Whoosh:Play()
+    tweenIn:Play()
+    tweenIn.Completed:Wait()
+    task.wait(2.0)
+    tweenOut:Play()
+    tweenOut.Completed:Wait()
+    Logo:Destroy()
+
+    -- ⏳ wait a bit before Main shows
+    task.wait(2.0) -- adjust delay time here
+
+    Main.Visible = true
+end)
+
 
 local MainCorner = Instance.new("UICorner", Main)
 MainCorner.CornerRadius = UDim.new(0, 12)
@@ -108,7 +155,7 @@ TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 18
 TitleText.TextColor3 = Theme.Text
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.Text = "SketchUI"
+TitleText.Text = "Vetrion.vip"
 TitleText.Parent = TitleBar
 
 -- small subtitle
@@ -120,7 +167,7 @@ Subtitle.Font = Enum.Font.Gotham
 Subtitle.TextSize = 12
 Subtitle.TextColor3 = Theme.Muted
 Subtitle.TextXAlignment = Enum.TextXAlignment.Right
-Subtitle.Text = "modern · glow · shadows"
+Subtitle.Text = "Version · Debug · 1.0"
 Subtitle.Parent = TitleBar
 
 local TitleUnderline = Instance.new("Frame")
@@ -646,8 +693,10 @@ local function makeKeybind(parent, label, defaultKey, callback)
     return {
         Get = function() return current end,
         Set = function(_, key) current = key; Btn.Text = key.Name end,
-        Disconnect = function() if conn then conn:Disconnect() end
-    }
+        Disconnect = function()
+        if conn then conn:Disconnect() end
+        end
+    }  
 end
 
 -- Color Picker
