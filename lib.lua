@@ -1,6 +1,5 @@
 -- lib_full.lua — SketchUI (Complete: Tabs, Sections, Toggle, Slider, Dropdown, Keybind, ColorPicker)
 -- Modern dark + glow/shadow accents, draggable, sidebar with logo + user,
--- Tabs: Legitbot, Visuals, Misc, Settings created by default (empty sections).
 -- RightShift toggles visibility.
 -- API:
 --   local UI = loadfile("lib_full.lua")()
