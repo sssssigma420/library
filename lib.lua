@@ -295,20 +295,6 @@ local function showMenuEffects()
     -- Start particles
     startParticles()
     
-    -- Add blur effect to background (optional)
-    local blurEffect = Instance.new("BlurEffect")
-    blurEffect.Size = 0
-    blurEffect.Parent = game.Lighting
-    
-    local blurTween = TweenService:Create(
-        blurEffect,
-        TweenInfo.new(0.5),
-        {Size = 8}
-    )
-    blurTween:Play()
-    
-    -- Store blur effect for cleanup
-    DimOverlay:SetAttribute("BlurEffect", blurEffect)
 end
 
 local function hideMenuEffects()
@@ -1193,8 +1179,8 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-    Section.BackgroundTransparency = 0.1
+    Section.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Section.BackgroundTransparency = 0
     Section.BorderSizePixel = 0
     Section.Parent = page
     
