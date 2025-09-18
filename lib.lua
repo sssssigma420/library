@@ -655,13 +655,8 @@ local IndicatorBorder = Instance.new("UIStroke", OnlineIndicator)
 IndicatorBorder.Color = Theme.Background
 IndicatorBorder.Thickness = 2
 
--- Content area
-local ContentArea = Instance.new("Frame")
-ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -240, 1, -50)
-ContentArea.Position = UDim2.new(0, 240, 0, 50)
-ContentArea.BackgroundTransparency = 1
-ContentArea.Parent = MainWindow
+ContentArea.BackgroundTransparency = 0
+ContentArea.BackgroundColor3 = Theme.Background  -- or Color3.fromRGB(15, 15, 17)
 
 -- Pages container
 local PagesContainer = Instance.new("Frame")
