@@ -561,8 +561,7 @@ local TabsSection = Instance.new("Frame")
 TabsSection.Name = "TabsSection"
 TabsSection.Size = UDim2.new(1, -24, 1, -280)
 TabsSection.Position = UDim2.new(0, 12, 0, 130)
-ContentArea.BackgroundTransparency = 0
-ContentArea.BackgroundColor3 = Theme.Background  
+ContentArea.BackgroundTransparency = 1
 TabsSection.Parent = Sidebar
 
 local TabsList = Instance.new("UIListLayout", TabsSection)
@@ -871,8 +870,8 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Surface
-    Section.BackgroundTransparency = 0.05
+    Section.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+    Section.BackgroundTransparency = 1
     Section.BorderSizePixel = 0
     Section.Parent = page
     
