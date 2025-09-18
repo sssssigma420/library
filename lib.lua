@@ -122,7 +122,7 @@ end
 
 -- Create main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ModernUI"
+ScreenGui.Name = "Vetrion.vip"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -131,6 +131,13 @@ pcall(function()
     ScreenGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 end)
 
+task.wait(2)
+for _, obj in pairs(ScreenGui:GetDescendants()) do
+    if obj:IsA("GuiObject") and obj.BackgroundColor3 == Color3.new(1,1,1) then
+        print("WHITE FOUND:", obj.Name, obj.ClassName)
+        obj.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Turn red temporarily
+    end
+end
 -- PARTICLE EFFECTS & DIM OVERLAY SYSTEM
 -- Add this code to your library after the ScreenGui creation
 
@@ -2114,3 +2121,5 @@ task.spawn(function()
 end)
 
 return UI
+
+
