@@ -660,7 +660,7 @@ local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
 ContentArea.Size = UDim2.new(1, -240, 1, -50)
 ContentArea.Position = UDim2.new(0, 240, 0, 50)
-ContentArea.BackgroundTransparency = 0
+ContentArea.BackgroundTransparency = 1
 ContentArea.BackgroundColor3 = Theme.Background  -- or Color3.fromRGB(15, 15, 17)
 ContentArea.Parent = MainWindow
 
