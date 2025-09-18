@@ -1157,10 +1157,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.BackgroundTransparency = 0
+    tabData.Page.BackgroundTransparency = 1
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        BackgroundTransparency = 0
+        BackgroundTransparency = 1
     })
     showTween:Play()
     
