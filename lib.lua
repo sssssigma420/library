@@ -561,7 +561,8 @@ local TabsSection = Instance.new("Frame")
 TabsSection.Name = "TabsSection"
 TabsSection.Size = UDim2.new(1, -24, 1, -280)
 TabsSection.Position = UDim2.new(0, 12, 0, 130)
-TabsSection.BackgroundTransparency = 1
+ContentArea.BackgroundTransparency = 0
+ContentArea.BackgroundColor3 = Theme.Background  
 TabsSection.Parent = Sidebar
 
 local TabsList = Instance.new("UIListLayout", TabsSection)
