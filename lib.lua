@@ -1157,10 +1157,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.BackgroundTransparency = 1
+    tabData.Page.BackgroundTransparency = 0
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        BackgroundTransparency = 1
+        BackgroundTransparency = 0
     })
     showTween:Play()
     
@@ -1184,7 +1184,7 @@ end
 local function createSection(page, title)
     local Section = Instance.new("Frame")
     Section.Name = "Section"
-    Section.Size = UDim2.new(1, 0, 0, 0)
+    Section.Size = UDim2.new(1, 1, 1, 1)
     Section.AutomaticSize = Enum.AutomaticSize.Y
     Section.BackgroundColor3 = Theme.Primary
     Section.BackgroundTransparency = 1
