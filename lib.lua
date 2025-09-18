@@ -1186,8 +1186,8 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Primary
-    Section.BackgroundTransparency = 1
+    Section.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Section.BackgroundTransparency = 0
     Section.BorderSizePixel = 0
     Section.Parent = page
     
@@ -1195,8 +1195,8 @@ local function createSection(page, title)
     SectionCorner.CornerRadius = UDim.new(0, 14)
     
     local SectionBorder = Instance.new("UIStroke", Section)
-    SectionBorder.Color = Theme.Primary
-    SectionBorder.Transparency = 0.5
+    SectionBorder.Color = Color3.fromRGB(30, 30, 35)
+    SectionBorder.Transparency = 0
     SectionBorder.Thickness = 1
     
     -- Glass effect
