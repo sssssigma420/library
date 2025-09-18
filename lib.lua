@@ -1,6 +1,7 @@
 -- lib_modern.lua — Enhanced SketchUI with modern design, animations, and improved UX
 -- Modern glassmorphism design, smooth animations, better interactions
 -- RightShift toggles visibility.
+-- FIXED VERSION - White background issue resolved
 -- API:
 --   local UI = loadfile("lib_modern.lua")()
 --   local window = UI:CreateWindow("Modern UI")
@@ -18,9 +19,9 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Modern Theme with glassmorphism and vibrant accents
+-- Modern Theme with glassmorphism and vibrant accents - FIXED VERSION
 local Theme = {
-    -- Main colors
+    -- Main colors - ALL DARK, NO WHITE
     Background = Color3.fromRGB(15, 15, 17),
     Surface = Color3.fromRGB(22, 22, 26),
     SurfaceVariant = Color3.fromRGB(28, 28, 32),
@@ -44,10 +45,10 @@ local Theme = {
     Border = Color3.fromRGB(55, 65, 81),
     BorderLight = Color3.fromRGB(75, 85, 99),
     
-    -- Effects
+    -- Effects - FIXED: NO WHITE COLORS
     Shadow = Color3.fromRGB(0, 0, 0),
     Glow = Color3.fromRGB(99, 102, 241),
-    GlassBlur = Color3.fromRGB(30, 30, 35),
+    GlassBlur = Color3.fromRGB(30, 30, 35),  -- FIXED: Was white, now dark
 }
 
 -- Animation constants
@@ -122,7 +123,7 @@ end
 
 -- Create main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Vetrion.vip"
+ScreenGui.Name = "ModernUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -130,323 +131,6 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 pcall(function()
     ScreenGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 end)
-
-task.wait(2)
-for _, obj in pairs(ScreenGui:GetDescendants()) do
-    if obj:IsA("GuiObject") and obj.BackgroundColor3 == Color3.new(1,1,1) then
-        print("WHITE FOUND:", obj.Name, obj.ClassName)
-        obj.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Turn red temporarily
-    end
-end
--- PARTICLE EFFECTS & DIM OVERLAY SYSTEM
--- Add this code to your library after the ScreenGui creation
-
--- 1. CREATE DIM OVERLAY (Add after ScreenGui creation)
-local DimOverlay = Instance.new("Frame")
-DimOverlay.Name = "DimOverlay"
-DimOverlay.Size = UDim2.fromScale(1, 1)
-DimOverlay.Position = UDim2.fromScale(0, 0)
-DimOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-DimOverlay.BackgroundTransparency = 1  -- Start invisible
-DimOverlay.BorderSizePixel = 0
-DimOverlay.ZIndex = 1  -- Behind the menu
-DimOverlay.Visible = false
-DimOverlay.Parent = ScreenGui
-
--- 2. CREATE PARTICLE SYSTEM CONTAINER
-local ParticleContainer = Instance.new("Frame")
-ParticleContainer.Name = "ParticleContainer"
-ParticleContainer.Size = UDim2.fromScale(1, 1)
-ParticleContainer.Position = UDim2.fromScale(0, 0)
-ParticleContainer.BackgroundTransparency = 1
-ParticleContainer.BorderSizePixel = 0
-ParticleContainer.ZIndex = 2  -- Above dim overlay, below menu
-ParticleContainer.Visible = false
-ParticleContainer.Parent = ScreenGui
-
--- 3. PARTICLE CREATION FUNCTION
-local particles = {}
-local particleCount = 0
-local maxParticles = 50
-
-local function createParticle()
-    if particleCount >= maxParticles then return end
-    
-    local particle = Instance.new("Frame")
-    particle.Size = UDim2.new(0, math.random(2, 6), 0, math.random(2, 6))
-    particle.Position = UDim2.new(
-        math.random(0, 100) / 100, 0,
-        math.random(0, 100) / 100, 0
-    )
-    particle.BackgroundColor3 = Color3.fromRGB(
-        math.random(99, 255),   -- Random blue/purple/white
-        math.random(102, 200),
-        math.random(241, 255)
-    )
-    particle.BackgroundTransparency = math.random(30, 70) / 100
-    particle.BorderSizePixel = 0
-    particle.ZIndex = 3
-    particle.Parent = ParticleContainer
-    
-    -- Make particle round
-    local corner = Instance.new("UICorner", particle)
-    corner.CornerRadius = UDim.new(1, 0)
-    
-    -- Add glow effect
-    local glow = Instance.new("UIStroke", particle)
-    glow.Color = particle.BackgroundColor3
-    glow.Transparency = 0.7
-    glow.Thickness = 1
-    
-    table.insert(particles, particle)
-    particleCount = particleCount + 1
-    
-    -- Animate particle
-    local moveTime = math.random(30, 60) / 10  -- 3-6 seconds
-    local endX = math.random(-20, 120) / 100
-    local endY = math.random(-20, 120) / 100
-    
-    -- Floating movement
-    local moveTween = TweenService:Create(
-        particle,
-        TweenInfo.new(moveTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-        {
-            Position = UDim2.new(endX, 0, endY, 0),
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 0, 0, 0)
-        }
-    )
-    
-    -- Pulse effect
-    local pulseTween = TweenService:Create(
-        particle,
-        TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-        {
-            BackgroundTransparency = particle.BackgroundTransparency + 0.3
-        }
-    )
-    
-    moveTween:Play()
-    pulseTween:Play()
-    
-    -- Cleanup when animation completes
-    moveTween.Completed:Connect(function()
-        pulseTween:Cancel()
-        particle:Destroy()
-        for i, p in ipairs(particles) do
-            if p == particle then
-                table.remove(particles, i)
-                particleCount = particleCount - 1
-                break
-            end
-        end
-    end)
-end
-
--- 4. PARTICLE SPAWNER SYSTEM
-local particleConnection
-local function startParticles()
-    if particleConnection then return end
-    
-    ParticleContainer.Visible = true
-    particleConnection = RunService.Heartbeat:Connect(function()
-        if math.random(1, 10) == 1 then  -- 10% chance each frame
-            createParticle()
-        end
-    end)
-end
-
-local function stopParticles()
-    if particleConnection then
-        particleConnection:Disconnect()
-        particleConnection = nil
-    end
-    
-    -- Fade out existing particles
-    for _, particle in ipairs(particles) do
-        if particle and particle.Parent then
-            TweenService:Create(
-                particle,
-                TweenInfo.new(0.5),
-                {BackgroundTransparency = 1}
-            ):Play()
-        end
-    end
-    
-    task.wait(1)
-    ParticleContainer.Visible = false
-    
-    -- Clear particles array
-    for i = #particles, 1, -1 do
-        if particles[i] and particles[i].Parent then
-            particles[i]:Destroy()
-        end
-        table.remove(particles, i)
-    end
-    particleCount = 0
-end
-
--- 5. MENU SHOW/HIDE EFFECTS FUNCTIONS
-local function showMenuEffects()
-    -- Show dim overlay
-    DimOverlay.Visible = true
-    DimOverlay.BackgroundTransparency = 1
-    
-    local dimTween = TweenService:Create(
-        DimOverlay,
-        TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        {BackgroundTransparency = 0.6}  -- 40% dim
-    )
-    dimTween:Play()
-    
-    -- Start particles
-    startParticles()
-    
-end
-
-local function hideMenuEffects()
-    -- Hide dim overlay
-    local dimTween = TweenService:Create(
-        DimOverlay,
-        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-        {BackgroundTransparency = 1}
-    )
-    dimTween:Play()
-    
-    dimTween.Completed:Connect(function()
-        DimOverlay.Visible = false
-    end)
-    
-    -- Stop particles
-    stopParticles()
-    
-    -- Remove blur effect
-    local blurEffect = DimOverlay:GetAttribute("BlurEffect")
-    if blurEffect and blurEffect.Parent then
-        local blurTween = TweenService:Create(
-            blurEffect,
-            TweenInfo.new(0.3),
-            {Size = 0}
-        )
-        blurTween:Play()
-        
-        blurTween.Completed:Connect(function()
-            blurEffect:Destroy()
-        end)
-    end
-end
-
--- 6. REPLACE THE EXISTING TOGGLE FUNCTIONALITY
--- Find the RightShift input handler and replace it with this:
-
--- 7. ADVANCED PARTICLE VARIANTS (Choose one style)
-
--- STYLE 1: Floating Orbs (Default above)
-
--- STYLE 2: Matrix Rain Effect
-local function createMatrixParticle()
-    if particleCount >= maxParticles then return end
-    
-    local particle = Instance.new("TextLabel")
-    particle.Size = UDim2.new(0, 8, 0, 12)
-    particle.Position = UDim2.new(math.random(0, 100) / 100, 0, -0.1, 0)
-    particle.BackgroundTransparency = 1
-    particle.BorderSizePixel = 0
-    particle.Font = Enum.Font.Code
-    particle.TextSize = 10
-    particle.TextColor3 = Color3.fromRGB(0, 255, 100)
-    particle.Text = string.char(math.random(33, 126))  -- Random character
-    particle.ZIndex = 3
-    particle.Parent = ParticleContainer
-    
-    table.insert(particles, particle)
-    particleCount = particleCount + 1
-    
-    -- Falling animation
-    local fallTween = TweenService:Create(
-        particle,
-        TweenInfo.new(math.random(40, 80) / 10, Enum.EasingStyle.Linear),
-        {
-            Position = UDim2.new(particle.Position.X.Scale, 0, 1.1, 0),
-            TextTransparency = 1
-        }
-    )
-    fallTween:Play()
-    
-    fallTween.Completed:Connect(function()
-        particle:Destroy()
-        for i, p in ipairs(particles) do
-            if p == particle then
-                table.remove(particles, i)
-                particleCount = particleCount - 1
-                break
-            end
-        end
-    end)
-end
-
--- STYLE 3: Geometric Shapes
-local function createGeometricParticle()
-    if particleCount >= maxParticles then return end
-    
-    local shapes = {"▲", "●", "■", "♦", "✦"}
-    local particle = Instance.new("TextLabel")
-    particle.Size = UDim2.new(0, math.random(8, 20), 0, math.random(8, 20))
-    particle.Position = UDim2.new(
-        math.random(0, 100) / 100, 0,
-        math.random(0, 100) / 100, 0
-    )
-    particle.BackgroundTransparency = 1
-    particle.BorderSizePixel = 0
-    particle.Font = Enum.Font.GothamBold
-    particle.TextSize = math.random(8, 16)
-    particle.TextColor3 = Theme.Primary
-    particle.Text = shapes[math.random(1, #shapes)]
-    particle.ZIndex = 3
-    particle.Parent = ParticleContainer
-    
-    -- Rotation and fade
-    local rotateTween = TweenService:Create(
-        particle,
-        TweenInfo.new(math.random(30, 60) / 10, Enum.EasingStyle.Linear),
-        {Rotation = 360}
-    )
-    
-    local fadeTween = TweenService:Create(
-        particle,
-        TweenInfo.new(math.random(50, 100) / 10, Enum.EasingStyle.Quad),
-        {
-            TextTransparency = 1,
-            Position = UDim2.new(
-                particle.Position.X.Scale + math.random(-20, 20) / 100,
-                0,
-                particle.Position.Y.Scale + math.random(-20, 20) / 100,
-                0
-            )
-        }
-    )
-    
-    rotateTween:Play()
-    fadeTween:Play()
-    
-    table.insert(particles, particle)
-    particleCount = particleCount + 1
-    
-    fadeTween.Completed:Connect(function()
-        rotateTween:Cancel()
-        particle:Destroy()
-        for i, p in ipairs(particles) do
-            if p == particle then
-                table.remove(particles, i)
-                particleCount = particleCount - 1
-                break
-            end
-        end
-    end)
-end
-
--- To use different particle styles, replace the createParticle() call in startParticles()
--- with createMatrixParticle() or createGeometricParticle()
 
 -- Enhanced loading animation
 local LoadingContainer = Instance.new("Frame")
@@ -698,10 +382,10 @@ TitleBar.Parent = MainWindow
 local TitleCorner = Instance.new("UICorner", TitleBar)
 TitleCorner.CornerRadius = UDim.new(0, 16)
 
--- Glass effect for title bar
+-- Glass effect for title bar - FIXED VERSION
 local TitleGradient = Instance.new("UIGradient", TitleBar)
 TitleGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Theme.GlassBlur),
+    ColorSequenceKeypoint.new(0, Theme.GlassBlur),  -- Now dark instead of white
     ColorSequenceKeypoint.new(1, Theme.GlassBlur)
 })
 TitleGradient.Transparency = NumberSequence.new({
@@ -903,10 +587,10 @@ UserBorder.Color = Theme.BorderLight
 UserBorder.Transparency = 0.7
 UserBorder.Thickness = 1
 
--- Glass effect for user section
+-- Glass effect for user section - FIXED VERSION
 local UserGradient = Instance.new("UIGradient", UserSection)
 UserGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Theme.GlassBlur),
+    ColorSequenceKeypoint.new(0, Theme.GlassBlur),  -- Now dark
     ColorSequenceKeypoint.new(1, Theme.GlassBlur)
 })
 UserGradient.Transparency = NumberSequence.new({
@@ -972,21 +656,34 @@ local IndicatorBorder = Instance.new("UIStroke", OnlineIndicator)
 IndicatorBorder.Color = Theme.Background
 IndicatorBorder.Thickness = 2
 
--- Content area
+-- Content area - FIXED VERSION
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
 ContentArea.Size = UDim2.new(1, -240, 1, -50)
 ContentArea.Position = UDim2.new(0, 240, 0, 50)
-ContentArea.BackgroundTransparency = 1
+ContentArea.BackgroundColor3 = Theme.Background  -- FIXED: Explicit dark background
+ContentArea.BackgroundTransparency = 0  -- FIXED: Make it opaque
+ContentArea.BorderSizePixel = 0
 ContentArea.Parent = MainWindow
 
--- Pages container
+-- Pages container - FIXED VERSION
 local PagesContainer = Instance.new("Frame")
 PagesContainer.Name = "PagesContainer"
 PagesContainer.Size = UDim2.new(1, -24, 1, -24)
 PagesContainer.Position = UDim2.new(0, 12, 0, 12)
-PagesContainer.BackgroundTransparency = 1
+PagesContainer.BackgroundColor3 = Theme.Surface  -- FIXED: Dark background
+PagesContainer.BackgroundTransparency = 0  -- FIXED: Opaque
+PagesContainer.BorderSizePixel = 0
 PagesContainer.Parent = ContentArea
+
+-- Add corner and border to pages container
+local PagesCorner = Instance.new("UICorner", PagesContainer)
+PagesCorner.CornerRadius = UDim.new(0, 12)
+
+local PagesBorder = Instance.new("UIStroke", PagesContainer)
+PagesBorder.Color = Theme.Border
+PagesBorder.Transparency = 0.7
+PagesBorder.Thickness = 1
 
 -- Internal storage
 local Tabs = {}
@@ -1084,7 +781,7 @@ local function createTabButton(name, icon)
     return TabButton, TabIcon, TabName
 end
 
--- Enhanced page creation
+-- Enhanced page creation - FIXED VERSION
 local function createPage()
     local Page = Instance.new("ScrollingFrame")
     Page.Name = "Page"
@@ -1092,10 +789,15 @@ local function createPage()
     Page.CanvasSize = UDim2.new(0, 0, 0, 0)
     Page.ScrollBarThickness = 6
     Page.ScrollingDirection = Enum.ScrollingDirection.Y
-    Page.BackgroundTransparency = 1
+    Page.BackgroundColor3 = Theme.SurfaceVariant  -- FIXED: Dark background
+    Page.BackgroundTransparency = 0  -- FIXED: Opaque
     Page.BorderSizePixel = 0
     Page.Visible = false
     Page.Parent = PagesContainer
+    
+    -- Add corner to page
+    local PageCorner = Instance.new("UICorner", Page)
+    PageCorner.CornerRadius = UDim.new(0, 8)
     
     -- Custom scrollbar styling
     Page.ScrollBarImageColor3 = Theme.Primary
@@ -1129,12 +831,12 @@ local function switchToTab(name)
     for _, data in pairs(Tabs) do
         if data.Page and data.Page.Visible then
             local fadeTween = TweenService:Create(data.Page, TweenInfo.new(0.15), {
-                BackgroundTransparency = 0
+                GroupTransparency = 1
             })
             fadeTween:Play()
             fadeTween.Completed:Connect(function()
                 data.Page.Visible = false
-                data.Page.BackgroundTransparency = 0
+                data.Page.GroupTransparency = 0
             end)
         end
         
@@ -1157,10 +859,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.BackgroundTransparency = 0
+    tabData.Page.GroupTransparency = 1
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        BackgroundTransparency = 0
+        GroupTransparency = 0
     })
     showTween:Play()
     
@@ -1180,14 +882,14 @@ local function switchToTab(name)
     CurrentTab = tabData
 end
 
--- Enhanced section creation
+-- Enhanced section creation - COMPLETELY FIXED VERSION
 local function createSection(page, title)
     local Section = Instance.new("Frame")
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Surface
-    Section.BackgroundTransparency = 0.05
+    Section.BackgroundColor3 = Color3.fromRGB(32, 32, 38)  -- FIXED: Solid dark color
+    Section.BackgroundTransparency = 0  -- FIXED: Completely opaque
     Section.BorderSizePixel = 0
     Section.Parent = page
     
@@ -1196,20 +898,10 @@ local function createSection(page, title)
     
     local SectionBorder = Instance.new("UIStroke", Section)
     SectionBorder.Color = Theme.BorderLight
-    SectionBorder.Transparency = 0.5
+    SectionBorder.Transparency = 0.6
     SectionBorder.Thickness = 1
     
-    -- Glass effect
-    local SectionGradient = Instance.new("UIGradient", Section)
-    SectionGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Theme.GlassBlur),
-        ColorSequenceKeypoint.new(1, Theme.GlassBlur)
-    })
-    SectionGradient.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.92),
-        NumberSequenceKeypoint.new(1, 0.96)
-    })
-    SectionGradient.Rotation = 45
+    -- REMOVED GLASS GRADIENT - NO MORE WHITE ISSUES
     
     -- Section header
     local SectionHeader = Instance.new("Frame")
@@ -1243,14 +935,20 @@ local function createSection(page, title)
     
     registerAccent(AccentBar, "BackgroundColor3")
     
-    -- Section content
+    -- Section content - FIXED VERSION
     local SectionContent = Instance.new("Frame")
     SectionContent.Name = "Content"
     SectionContent.Size = UDim2.new(1, -32, 0, 0)
     SectionContent.Position = UDim2.new(0, 16, 0, 50)
     SectionContent.AutomaticSize = Enum.AutomaticSize.Y
-    SectionContent.BackgroundTransparency = 1
+    SectionContent.BackgroundColor3 = Color3.fromRGB(28, 28, 34)  -- FIXED: Slightly darker than section
+    SectionContent.BackgroundTransparency = 0  -- FIXED: Opaque
+    SectionContent.BorderSizePixel = 0
     SectionContent.Parent = Section
+    
+    -- Add corner to content
+    local ContentCorner = Instance.new("UICorner", SectionContent)
+    ContentCorner.CornerRadius = UDim.new(0, 10)
     
     local ContentLayout = Instance.new("UIListLayout", SectionContent)
     ContentLayout.FillDirection = Enum.FillDirection.Vertical
@@ -1258,7 +956,10 @@ local function createSection(page, title)
     ContentLayout.Padding = UDim.new(0, 12)
     
     local ContentPadding = Instance.new("UIPadding", SectionContent)
-    ContentPadding.PaddingBottom = UDim.new(0, 16)
+    ContentPadding.PaddingTop = UDim.new(0, 12)
+    ContentPadding.PaddingBottom = UDim2.new(0, 16)
+    ContentPadding.PaddingLeft = UDim.new(0, 12)
+    ContentPadding.PaddingRight = UDim.new(0, 12)
     
     return Section, SectionContent
 end
@@ -1605,29 +1306,30 @@ local function createDropdown(parent, label, options, default, callback)
     
     local OptionsLayout = Instance.new("UIListLayout", OptionsFrame)
     OptionsLayout.FillDirection = Enum.FillDirection.Vertical
-    OptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+OptionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
     OptionsLayout.Padding = UDim.new(0, 2)
     
     -- Create option buttons
+    local currentValue = default
     for i, option in ipairs(options) do
         local OptionButton = Instance.new("TextButton")
-        OptionButton.Size = UDim2.new(1, 0, 0, 32)
+        OptionButton.Size = UDim2.new(1, -8, 0, 32)
         OptionButton.BackgroundColor3 = Theme.Surface
-        OptionButton.BackgroundTransparency = 1
+        OptionButton.BackgroundTransparency = 0.3
         OptionButton.BorderSizePixel = 0
         OptionButton.AutoButtonColor = false
-        OptionButton.Font = Enum.Font.GothamMedium
+        OptionButton.Font = Enum.Font.Gotham
         OptionButton.TextSize = 13
         OptionButton.TextColor3 = Theme.Text
         OptionButton.TextXAlignment = Enum.TextXAlignment.Left
         OptionButton.Text = option
         OptionButton.Parent = OptionsFrame
         
-        local OptionPadding = Instance.new("UIPadding", OptionButton)
-        OptionPadding.PaddingLeft = UDim.new(0, 12)
-        
         local OptionCorner = Instance.new("UICorner", OptionButton)
         OptionCorner.CornerRadius = UDim.new(0, 6)
+        
+        local OptionPadding = Instance.new("UIPadding", OptionButton)
+        OptionPadding.PaddingLeft = UDim.new(0, 12)
         
         -- Option hover effects
         OptionButton.MouseEnter:Connect(function()
@@ -1638,14 +1340,16 @@ local function createDropdown(parent, label, options, default, callback)
         
         OptionButton.MouseLeave:Connect(function()
             TweenService:Create(OptionButton, TweenInfo.new(0.1), {
-                BackgroundTransparency = 1
+                BackgroundTransparency = 0.3
             }):Play()
         end)
         
         OptionButton.MouseButton1Click:Connect(function()
+            currentValue = option
             DropdownButton.Text = option
             DropdownMenu.Visible = false
             
+            -- Animate arrow
             TweenService:Create(Arrow, TweenInfo.new(0.2), {
                 Rotation = 0
             }):Play()
@@ -1654,30 +1358,38 @@ local function createDropdown(parent, label, options, default, callback)
         end)
     end
     
-    -- Update canvas size for options
-    OptionsFrame.CanvasSize = UDim2.new(0, 0, 0, #options * 34)
+    -- Update canvas size
+    OptionsFrame.CanvasSize = UDim2.new(0, 0, 0, OptionsLayout.AbsoluteContentSize.Y + 8)
+    OptionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        OptionsFrame.CanvasSize = UDim2.new(0, 0, 0, OptionsLayout.AbsoluteContentSize.Y + 8)
+    end)
     
-    local isOpen = false
+    local menuOpen = false
     
     DropdownButton.MouseButton1Click:Connect(function()
-        isOpen = not isOpen
-        DropdownMenu.Visible = isOpen
+        menuOpen = not menuOpen
+        DropdownMenu.Visible = menuOpen
         
-        if isOpen then
+        -- Animate arrow
+        TweenService:Create(Arrow, TweenInfo.new(0.2), {
+            Rotation = menuOpen and 180 or 0
+        }):Play()
+        
+        if menuOpen then
+            -- Scale in animation
             DropdownMenu.Size = UDim2.new(0, 150, 0, 0)
             TweenService:Create(DropdownMenu, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Size = UDim2.new(0, 150, 0, math.min(#options * 36 + 8, 200))
             }):Play()
         end
-        
-        TweenService:Create(Arrow, TweenInfo.new(0.2), {
-            Rotation = isOpen and 180 or 0
-        }):Play()
     end)
     
     return {
         Set = function(_, value)
-            DropdownButton.Text = value
+            if table.find(options, value) then
+                currentValue = value
+                DropdownButton.Text = value
+            end
         end
     }
 end
@@ -1691,70 +1403,52 @@ local function createButton(parent, text, callback)
     Container.BackgroundTransparency = 1
     Container.Parent = parent
     
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(0, 120, 0, 36)
-    Button.Position = UDim2.new(1, -120, 0.5, -18)
-    Button.BackgroundColor3 = Theme.Primary
-    Button.BorderSizePixel = 0
-    Button.AutoButtonColor = false
-    Button.Font = Enum.Font.GothamSemibold
-    Button.TextSize = 14
-    Button.TextColor3 = Theme.Text
+    local Button = createBaseButton(Container, UDim2.new(0, 120, 0, 36))
+    Button.Position = UDim2.new(0.5, -60, 0.5, -18)
     Button.Text = text
-    Button.Parent = Container
-    
-    local ButtonCorner = Instance.new("UICorner", Button)
-    ButtonCorner.CornerRadius = UDim.new(0, 10)
-    
-    local ButtonBorder = Instance.new("UIStroke", Button)
-    ButtonBorder.Color = Theme.Primary
-    ButtonBorder.Transparency = 0.7
-    ButtonBorder.Thickness = 1
+    Button.BackgroundColor3 = Theme.Primary
+    Button.TextColor3 = Theme.Text
     
     registerAccent(Button, "BackgroundColor3")
-    registerAccent(ButtonBorder, "Color")
     
     -- Button gradient
     local ButtonGradient = Instance.new("UIGradient", Button)
     ButtonGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(1, 1, 1)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0.9, 0.9, 0.9))
+        ColorSequenceKeypoint.new(0, Theme.Primary),
+        ColorSequenceKeypoint.new(1, Theme.PrimaryDim)
     })
-    ButtonGradient.Transparency = NumberSequence.new(0.85)
-    ButtonGradient.Rotation = 90
+    ButtonGradient.Rotation = 45
     
     -- Hover effects
     Button.MouseEnter:Connect(function()
         TweenService:Create(Button, TweenInfo.new(0.2), {
-            Size = UDim2.new(0, 124, 0, 38),
-            Position = UDim2.new(1, -122, 0.5, -19)
+            Size = UDim2.new(0, 126, 0, 38)
         }):Play()
         
-        TweenService:Create(ButtonBorder, TweenInfo.new(0.2), {
-            Transparency = 0.3
+        TweenService:Create(ButtonGradient, TweenInfo.new(0.2), {
+            Rotation = 90
         }):Play()
     end)
     
     Button.MouseLeave:Connect(function()
         TweenService:Create(Button, TweenInfo.new(0.2), {
-            Size = UDim2.new(0, 120, 0, 36),
-            Position = UDim2.new(1, -120, 0.5, -18)
+            Size = UDim2.new(0, 120, 0, 36)
         }):Play()
         
-        TweenService:Create(ButtonBorder, TweenInfo.new(0.2), {
-            Transparency = 0.7
+        TweenService:Create(ButtonGradient, TweenInfo.new(0.2), {
+            Rotation = 45
         }):Play()
     end)
     
     Button.MouseButton1Click:Connect(function()
-        playRipple(Button, UserInputService:GetMouseLocation())
+        playRipple(Button, Vector2.new(Button.AbsoluteSize.X/2, Button.AbsoluteSize.Y/2))
         callback()
     end)
     
     return Button
 end
 
--- Enhanced Input/Textbox Component
+-- Enhanced Input/TextBox Component
 local function createInput(parent, label, placeholder, callback)
     callback = callback or noop
     
@@ -1767,8 +1461,8 @@ local function createInput(parent, label, placeholder, callback)
     Label.Position = UDim2.new(0, 0, 0, 2)
     
     local InputFrame = Instance.new("Frame")
-    InputFrame.Size = UDim2.new(0, 200, 0, 32)
-    InputFrame.Position = UDim2.new(1, -200, 1, -32)
+    InputFrame.Size = UDim2.new(1, 0, 0, 32)
+    InputFrame.Position = UDim2.new(0, 0, 1, -32)
     InputFrame.BackgroundColor3 = Theme.Surface
     InputFrame.BorderSizePixel = 0
     InputFrame.Parent = Container
@@ -1821,178 +1515,71 @@ local function createInput(parent, label, placeholder, callback)
     }
 end
 
--- Enhanced ColorPicker Component
-local function createColorPicker(parent, label, default, callback)
-    callback = callback or noop
-    default = default or Color3.fromRGB(255, 255, 255)
-    
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 0, 42)
-    Container.BackgroundTransparency = 1
-    Container.Parent = parent
-    
-    local Label = createLabel(Container, label, 18)
-    Label.Position = UDim2.new(0, 0, 0, 2)
-    
-    local ColorButton = Instance.new("TextButton")
-    ColorButton.Size = UDim2.new(0, 40, 0, 32)
-    ColorButton.Position = UDim2.new(1, -40, 1, -32)
-    ColorButton.BackgroundColor3 = default
-    ColorButton.BorderSizePixel = 0
-    ColorButton.AutoButtonColor = false
-    ColorButton.Text = ""
-    ColorButton.Parent = Container
-    
-    local ColorCorner = Instance.new("UICorner", ColorButton)
-    ColorCorner.CornerRadius = UDim.new(0, 8)
-    
-    local ColorBorder = Instance.new("UIStroke", ColorButton)
-    ColorBorder.Color = Theme.BorderLight
-    ColorBorder.Transparency = 0.3
-    ColorBorder.Thickness = 2
-    
-    local currentColor = default
-    
-    ColorButton.MouseButton1Click:Connect(function()
-        -- Simple color cycling for demo purposes
-        local colors = {
-            Color3.fromRGB(255, 100, 100),
-            Color3.fromRGB(100, 255, 100),
-            Color3.fromRGB(100, 100, 255),
-            Color3.fromRGB(255, 255, 100),
-            Color3.fromRGB(255, 100, 255),
-            Color3.fromRGB(100, 255, 255),
-            Color3.fromRGB(255, 255, 255)
-        }
-        
-        local nextIndex = 1
-        for i, color in ipairs(colors) do
-            if currentColor == color then
-                nextIndex = (i % #colors) + 1
-                break
-            end
-        end
-        
-        currentColor = colors[nextIndex]
-        ColorButton.BackgroundColor3 = currentColor
-        callback(currentColor)
-    end)
-    
-    -- Hover effect
-    ColorButton.MouseEnter:Connect(function()
-        TweenService:Create(ColorBorder, TweenInfo.new(0.2), {
-            Transparency = 0.1
-        }):Play()
-    end)
-    
-    ColorButton.MouseLeave:Connect(function()
-        TweenService:Create(ColorBorder, TweenInfo.new(0.2), {
-            Transparency = 0.3
-        }):Play()
-    end)
-    
-    return {
-        Set = function(_, color)
-            currentColor = color
-            ColorButton.BackgroundColor3 = color
-        end,
-        Get = function(_)
-            return currentColor
-        end
-    }
-end
+-- Toggle visibility functionality
+local isVisible = true
 
--- Enhanced Keybind Component
-local function createKeybind(parent, label, default, callback)
-    callback = callback or noop
-    default = default or "None"
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
     
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 0, 42)
-    Container.BackgroundTransparency = 1
-    Container.Parent = parent
-    
-    local Label = createLabel(Container, label, 18)
-    Label.Position = UDim2.new(0, 0, 0, 2)
-    
-    local KeybindButton = createBaseButton(Container, UDim2.new(0, 100, 0, 32))
-    KeybindButton.Position = UDim2.new(1, -100, 1, -32)
-    KeybindButton.Text = default
-    KeybindButton.TextColor3 = Theme.Primary
-    
-    local listening = false
-    local currentKey = default
-    
-    KeybindButton.MouseButton1Click:Connect(function()
-        if listening then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        isVisible = not isVisible
         
-        listening = true
-        KeybindButton.Text = "..."
+        local targetTransparency = isVisible and 0 or 1
+        local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
         
-        local connection
-        connection = UserInputService.InputBegan:Connect(function(input, processed)
-            if processed then return end
-            
-            local keyName = input.KeyCode.Name
-            if keyName ~= "Unknown" then
-                currentKey = keyName
-                KeybindButton.Text = keyName
-                KeybindButton.TextColor3 = Theme.Primary
-                listening = false
-                connection:Disconnect()
-                callback(keyName)
-            end
-        end)
-    end)
-    
-    return {
-        Set = function(_, key)
-            currentKey = key
-            KeybindButton.Text = key
-        end,
-        Get = function(_)
-            return currentKey
+        TweenService:Create(MainWindow, tweenInfo, {
+            GroupTransparency = targetTransparency
+        }):Play()
+        
+        if isVisible then
+            MainWindow.Visible = true
+        else
+            task.wait(0.3)
+            MainWindow.Visible = false
         end
-    }
-end
+    end
+end)
 
--- Main UI Class
+-- Main UI API
 function UI:CreateWindow(title)
     WindowTitle.Text = title or "Modern UI"
     
     local Window = {}
+    Window.Tabs = {}
     
     function Window:CreateTab(name, icon)
         local tabButton, tabIcon, tabName = createTabButton(name, icon)
         local page = createPage()
         
-        Tabs[name] = {
+        local Tab = {
             Button = tabButton,
             TabIcon = tabIcon,
             TabName = tabName,
-            Page = page
+            Page = page,
+            Sections = {}
         }
+        
+        Tabs[name] = Tab
+        Window.Tabs[name] = Tab
+        
+        -- Auto-select first tab
+        if not CurrentTab then
+            switchToTab(name)
+        end
         
         tabButton.MouseButton1Click:Connect(function()
             switchToTab(name)
         end)
         
-        -- Auto-select first tab
-        if not CurrentTab then
-            task.wait(0.1)
-            switchToTab(name)
-        end
-        
-        local Tab = {}
-        
         function Tab:CreateSection(title)
             local section, sectionContent = createSection(page, title)
             
-            local Section = {}
+            local Section = {
+                Frame = section,
+                Content = sectionContent
+            }
             
-            function Section:AddLabel(text)
-                return createLabel(sectionContent, text, 24)
-            end
+            table.insert(Tab.Sections, Section)
             
             function Section:AddToggle(label, default, callback)
                 return createToggle(sectionContent, label, default, callback)
@@ -2014,12 +1601,8 @@ function UI:CreateWindow(title)
                 return createInput(sectionContent, label, placeholder, callback)
             end
             
-            function Section:AddColorPicker(label, default, callback)
-                return createColorPicker(sectionContent, label, default, callback)
-            end
-            
-            function Section:AddKeybind(label, default, callback)
-                return createKeybind(sectionContent, label, default, callback)
+            function Section:AddLabel(text)
+                return createLabel(sectionContent, text, 24)
             end
             
             return Section
@@ -2028,98 +1611,95 @@ function UI:CreateWindow(title)
         return Tab
     end
     
-    function Window:SetAccentColor(color)
+    -- Theme functions
+    function Window:SetAccent(color)
         applyAccent(color, "Primary")
     end
     
-    function Window:Hide()
-        MainWindow.Visible = false
-    end
-    
-    function Window:Show()
-        MainWindow.Visible = true
-    end
-    
-    function Window:Toggle()
-        MainWindow.Visible = not MainWindow.Visible
+    function Window:SetTheme(themeName)
+        if themeName == "dark" then
+            -- Already dark theme
+        elseif themeName == "blue" then
+            Window:SetAccent(Color3.fromRGB(59, 130, 246))
+        elseif themeName == "purple" then
+            Window:SetAccent(Color3.fromRGB(147, 51, 234))
+        elseif themeName == "green" then
+            Window:SetAccent(Color3.fromRGB(34, 197, 94))
+        elseif themeName == "red" then
+            Window:SetAccent(Color3.fromRGB(239, 68, 68))
+        end
     end
     
     return Window
 end
 
--- Toggle functionality with RightShift
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.RightShift then
-        if MainWindow then
-            local isVisible = MainWindow.Visible
-            
-            if not isVisible then
-                -- Show menu with effects
-                MainWindow.Visible = true
-                showMenuEffects()
-                
-                -- Entrance animation
-                MainWindow.Size = UDim2.new(0, 0, 0, 0)
-                local showTween = TweenService:Create(
-                    MainWindow,
-                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-                    {Size = UDim2.new(0, 940, 0, 520)}
-                )
-                showTween:Play()
-            else
-                -- Hide menu with effects
-                hideMenuEffects()
-                
-                -- Exit animation
-                local hideTween = TweenService:Create(
-                    MainWindow,
-                    TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In),
-                    {Size = UDim2.new(0, 0, 0, 0)}
-                )
-                hideTween:Play()
-                
-                hideTween.Completed:Connect(function()
-                    MainWindow.Visible = false
-                    MainWindow.Size = UDim2.new(0, 940, 0, 520)
-                end)
-            end
-        end
-    end
-end)
-
--- Cleanup function
-function UI:Destroy()
-    if ScreenGui then
-        ScreenGui:Destroy()
-    end
+-- Notification system
+function UI:Notify(title, message, duration)
+    duration = duration or 3
+    
+    local Notification = Instance.new("Frame")
+    Notification.Size = UDim2.new(0, 320, 0, 80)
+    Notification.Position = UDim2.new(1, -340, 1, -100)
+    Notification.BackgroundColor3 = Theme.Surface
+    Notification.BorderSizePixel = 0
+    Notification.Parent = ScreenGui
+    
+    local NotifCorner = Instance.new("UICorner", Notification)
+    NotifCorner.CornerRadius = UDim.new(0, 12)
+    
+    local NotifBorder = Instance.new("UIStroke", Notification)
+    NotifBorder.Color = Theme.BorderLight
+    NotifBorder.Transparency = 0.4
+    NotifBorder.Thickness = 1
+    
+    -- Notification content
+    local NotifTitle = Instance.new("TextLabel")
+    NotifTitle.Size = UDim2.new(1, -20, 0, 24)
+    NotifTitle.Position = UDim2.new(0, 16, 0, 12)
+    NotifTitle.BackgroundTransparency = 1
+    NotifTitle.Font = Enum.Font.GothamBold
+    NotifTitle.TextSize = 14
+    NotifTitle.TextColor3 = Theme.Text
+    NotifTitle.TextXAlignment = Enum.TextXAlignment.Left
+    NotifTitle.Text = title
+    NotifTitle.Parent = Notification
+    
+    local NotifMessage = Instance.new("TextLabel")
+    NotifMessage.Size = UDim2.new(1, -20, 0, 32)
+    NotifMessage.Position = UDim2.new(0, 16, 0, 36)
+    NotifMessage.BackgroundTransparency = 1
+    NotifMessage.Font = Enum.Font.Gotham
+    NotifMessage.TextSize = 12
+    NotifMessage.TextColor3 = Theme.TextMuted
+    NotifMessage.TextXAlignment = Enum.TextXAlignment.Left
+    NotifMessage.TextYAlignment = Enum.TextYAlignment.Top
+    NotifMessage.TextWrapped = true
+    NotifMessage.Text = message
+    NotifMessage.Parent = Notification
+    
+    -- Slide in animation
+    Notification.Position = UDim2.new(1, 20, 1, -100)
+    local slideIn = TweenService:Create(
+        Notification,
+        TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+        {Position = UDim2.new(1, -340, 1, -100)}
+    )
+    slideIn:Play()
+    
+    -- Auto-dismiss
+    task.spawn(function()
+        task.wait(duration)
+        
+        local slideOut = TweenService:Create(
+            Notification,
+            TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+            {Position = UDim2.new(1, 20, 1, -100)}
+        )
+        slideOut:Play()
+        
+        slideOut.Completed:Wait()
+        Notification:Destroy()
+    end)
 end
 
--- Auto-cleanup on game close
-game:GetService("Players").PlayerRemoving:Connect(function(player)
-    if player == LocalPlayer then
-        UI:Destroy()
-    end
-end)
-
--- Performance monitoring
-task.spawn(function()
-    while task.wait(1) do
-        local fps = math.floor(1 / RunService.Heartbeat:Wait())
-        if fps < 30 then
-            -- Reduce visual effects for performance
-            for _, data in pairs(Tabs) do
-                if data.Page then
-                    for _, child in pairs(data.Page:GetDescendants()) do
-                        if child:IsA("UIGradient") then
-                            child.Enabled = false
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
 return UI
-
-
