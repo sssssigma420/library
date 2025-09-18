@@ -1201,10 +1201,13 @@ local function createSection(page, title)
     
     -- Glass effect
     local SectionGradient = Instance.new("UIGradient", Section)
-    SectionGradient.Color = Theme.Primary
+    SectionGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Theme.GlassBlur),
+        ColorSequenceKeypoint.new(1, Theme.GlassBlur)
+    })
     SectionGradient.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.92),
-        NumberSequenceKeypoint.new(1, 0.96)
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(1, 1)
     })
     SectionGradient.Rotation = 45
     
