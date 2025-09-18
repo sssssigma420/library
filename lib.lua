@@ -1186,8 +1186,7 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Surface
-    Section.BackgroundTransparency = 0.05
+    Section.BackgroundColor3 = Theme.Primary
     Section.BorderSizePixel = 0
     Section.Parent = page
     
@@ -1195,7 +1194,7 @@ local function createSection(page, title)
     SectionCorner.CornerRadius = UDim.new(0, 14)
     
     local SectionBorder = Instance.new("UIStroke", Section)
-    SectionBorder.Color = Theme.BorderLight
+    SectionBorder.Color = Theme.Primary
     SectionBorder.Transparency = 0.5
     SectionBorder.Thickness = 1
     
