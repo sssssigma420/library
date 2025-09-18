@@ -122,7 +122,7 @@ end
 
 -- Create main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Vetrion.vip"
+ScreenGui.Name = "Vetrion.Vip"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
