@@ -1189,7 +1189,7 @@ local function createSection(page, title)
     
     local SectionBorder = Instance.new("UIStroke", Section)
     SectionBorder.Color = Theme.BorderLight
-    SectionBorder.Transparency = 0.6
+    SectionBorder.Transparency = 0
     SectionBorder.Thickness = 1
     
     -- Glass effect
