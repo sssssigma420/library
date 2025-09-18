@@ -869,8 +869,8 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Surface
-    Section.BackgroundTransparency = 0.05
+    Section.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    Section.BackgroundTransparency = 0.1
     Section.BorderSizePixel = 0
     Section.Parent = page
     
