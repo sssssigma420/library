@@ -131,6 +131,330 @@ pcall(function()
     ScreenGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 end)
 
+-- PARTICLE EFFECTS & DIM OVERLAY SYSTEM
+-- Add this code to your library after the ScreenGui creation
+
+-- 1. CREATE DIM OVERLAY (Add after ScreenGui creation)
+local DimOverlay = Instance.new("Frame")
+DimOverlay.Name = "DimOverlay"
+DimOverlay.Size = UDim2.fromScale(1, 1)
+DimOverlay.Position = UDim2.fromScale(0, 0)
+DimOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+DimOverlay.BackgroundTransparency = 1  -- Start invisible
+DimOverlay.BorderSizePixel = 0
+DimOverlay.ZIndex = 1  -- Behind the menu
+DimOverlay.Visible = false
+DimOverlay.Parent = ScreenGui
+
+-- 2. CREATE PARTICLE SYSTEM CONTAINER
+local ParticleContainer = Instance.new("Frame")
+ParticleContainer.Name = "ParticleContainer"
+ParticleContainer.Size = UDim2.fromScale(1, 1)
+ParticleContainer.Position = UDim2.fromScale(0, 0)
+ParticleContainer.BackgroundTransparency = 1
+ParticleContainer.BorderSizePixel = 0
+ParticleContainer.ZIndex = 2  -- Above dim overlay, below menu
+ParticleContainer.Visible = false
+ParticleContainer.Parent = ScreenGui
+
+-- 3. PARTICLE CREATION FUNCTION
+local particles = {}
+local particleCount = 0
+local maxParticles = 50
+
+local function createParticle()
+    if particleCount >= maxParticles then return end
+    
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, math.random(2, 6), 0, math.random(2, 6))
+    particle.Position = UDim2.new(
+        math.random(0, 100) / 100, 0,
+        math.random(0, 100) / 100, 0
+    )
+    particle.BackgroundColor3 = Color3.fromRGB(
+        math.random(99, 255),   -- Random blue/purple/white
+        math.random(102, 200),
+        math.random(241, 255)
+    )
+    particle.BackgroundTransparency = math.random(30, 70) / 100
+    particle.BorderSizePixel = 0
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    -- Make particle round
+    local corner = Instance.new("UICorner", particle)
+    corner.CornerRadius = UDim.new(1, 0)
+    
+    -- Add glow effect
+    local glow = Instance.new("UIStroke", particle)
+    glow.Color = particle.BackgroundColor3
+    glow.Transparency = 0.7
+    glow.Thickness = 1
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    -- Animate particle
+    local moveTime = math.random(30, 60) / 10  -- 3-6 seconds
+    local endX = math.random(-20, 120) / 100
+    local endY = math.random(-20, 120) / 100
+    
+    -- Floating movement
+    local moveTween = TweenService:Create(
+        particle,
+        TweenInfo.new(moveTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+        {
+            Position = UDim2.new(endX, 0, endY, 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 0, 0, 0)
+        }
+    )
+    
+    -- Pulse effect
+    local pulseTween = TweenService:Create(
+        particle,
+        TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+        {
+            BackgroundTransparency = particle.BackgroundTransparency + 0.3
+        }
+    )
+    
+    moveTween:Play()
+    pulseTween:Play()
+    
+    -- Cleanup when animation completes
+    moveTween.Completed:Connect(function()
+        pulseTween:Cancel()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- 4. PARTICLE SPAWNER SYSTEM
+local particleConnection
+local function startParticles()
+    if particleConnection then return end
+    
+    ParticleContainer.Visible = true
+    particleConnection = RunService.Heartbeat:Connect(function()
+        if math.random(1, 10) == 1 then  -- 10% chance each frame
+            createParticle()
+        end
+    end)
+end
+
+local function stopParticles()
+    if particleConnection then
+        particleConnection:Disconnect()
+        particleConnection = nil
+    end
+    
+    -- Fade out existing particles
+    for _, particle in ipairs(particles) do
+        if particle and particle.Parent then
+            TweenService:Create(
+                particle,
+                TweenInfo.new(0.5),
+                {BackgroundTransparency = 1}
+            ):Play()
+        end
+    end
+    
+    task.wait(1)
+    ParticleContainer.Visible = false
+    
+    -- Clear particles array
+    for i = #particles, 1, -1 do
+        if particles[i] and particles[i].Parent then
+            particles[i]:Destroy()
+        end
+        table.remove(particles, i)
+    end
+    particleCount = 0
+end
+
+-- 5. MENU SHOW/HIDE EFFECTS FUNCTIONS
+local function showMenuEffects()
+    -- Show dim overlay
+    DimOverlay.Visible = true
+    DimOverlay.BackgroundTransparency = 1
+    
+    local dimTween = TweenService:Create(
+        DimOverlay,
+        TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {BackgroundTransparency = 0.6}  -- 40% dim
+    )
+    dimTween:Play()
+    
+    -- Start particles
+    startParticles()
+    
+    -- Add blur effect to background (optional)
+    local blurEffect = Instance.new("BlurEffect")
+    blurEffect.Size = 0
+    blurEffect.Parent = game.Lighting
+    
+    local blurTween = TweenService:Create(
+        blurEffect,
+        TweenInfo.new(0.5),
+        {Size = 8}
+    )
+    blurTween:Play()
+    
+    -- Store blur effect for cleanup
+    DimOverlay:SetAttribute("BlurEffect", blurEffect)
+end
+
+local function hideMenuEffects()
+    -- Hide dim overlay
+    local dimTween = TweenService:Create(
+        DimOverlay,
+        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        {BackgroundTransparency = 1}
+    )
+    dimTween:Play()
+    
+    dimTween.Completed:Connect(function()
+        DimOverlay.Visible = false
+    end)
+    
+    -- Stop particles
+    stopParticles()
+    
+    -- Remove blur effect
+    local blurEffect = DimOverlay:GetAttribute("BlurEffect")
+    if blurEffect and blurEffect.Parent then
+        local blurTween = TweenService:Create(
+            blurEffect,
+            TweenInfo.new(0.3),
+            {Size = 0}
+        )
+        blurTween:Play()
+        
+        blurTween.Completed:Connect(function()
+            blurEffect:Destroy()
+        end)
+    end
+end
+
+-- 6. REPLACE THE EXISTING TOGGLE FUNCTIONALITY
+-- Find the RightShift input handler and replace it with this:
+
+-- 7. ADVANCED PARTICLE VARIANTS (Choose one style)
+
+-- STYLE 1: Floating Orbs (Default above)
+
+-- STYLE 2: Matrix Rain Effect
+local function createMatrixParticle()
+    if particleCount >= maxParticles then return end
+    
+    local particle = Instance.new("TextLabel")
+    particle.Size = UDim2.new(0, 8, 0, 12)
+    particle.Position = UDim2.new(math.random(0, 100) / 100, 0, -0.1, 0)
+    particle.BackgroundTransparency = 1
+    particle.BorderSizePixel = 0
+    particle.Font = Enum.Font.Code
+    particle.TextSize = 10
+    particle.TextColor3 = Color3.fromRGB(0, 255, 100)
+    particle.Text = string.char(math.random(33, 126))  -- Random character
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    -- Falling animation
+    local fallTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(40, 80) / 10, Enum.EasingStyle.Linear),
+        {
+            Position = UDim2.new(particle.Position.X.Scale, 0, 1.1, 0),
+            TextTransparency = 1
+        }
+    )
+    fallTween:Play()
+    
+    fallTween.Completed:Connect(function()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- STYLE 3: Geometric Shapes
+local function createGeometricParticle()
+    if particleCount >= maxParticles then return end
+    
+    local shapes = {"▲", "●", "■", "♦", "✦"}
+    local particle = Instance.new("TextLabel")
+    particle.Size = UDim2.new(0, math.random(8, 20), 0, math.random(8, 20))
+    particle.Position = UDim2.new(
+        math.random(0, 100) / 100, 0,
+        math.random(0, 100) / 100, 0
+    )
+    particle.BackgroundTransparency = 1
+    particle.BorderSizePixel = 0
+    particle.Font = Enum.Font.GothamBold
+    particle.TextSize = math.random(8, 16)
+    particle.TextColor3 = Theme.Primary
+    particle.Text = shapes[math.random(1, #shapes)]
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    -- Rotation and fade
+    local rotateTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(30, 60) / 10, Enum.EasingStyle.Linear),
+        {Rotation = 360}
+    )
+    
+    local fadeTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(50, 100) / 10, Enum.EasingStyle.Quad),
+        {
+            TextTransparency = 1,
+            Position = UDim2.new(
+                particle.Position.X.Scale + math.random(-20, 20) / 100,
+                0,
+                particle.Position.Y.Scale + math.random(-20, 20) / 100,
+                0
+            )
+        }
+    )
+    
+    rotateTween:Play()
+    fadeTween:Play()
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    fadeTween.Completed:Connect(function()
+        rotateTween:Cancel()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- To use different particle styles, replace the createParticle() call in startParticles()
+-- with createMatrixParticle() or createGeometricParticle()
+
 -- Enhanced loading animation
 local LoadingContainer = Instance.new("Frame")
 LoadingContainer.Name = "LoadingContainer"
@@ -1734,22 +2058,29 @@ end
 UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.RightShift then
         if MainWindow then
-            MainWindow.Visible = not MainWindow.Visible
+            local isVisible = MainWindow.Visible
             
-            if MainWindow.Visible then
+            if not isVisible then
+                -- Show menu with effects
+                MainWindow.Visible = true
+                showMenuEffects()
+                
                 -- Entrance animation
                 MainWindow.Size = UDim2.new(0, 0, 0, 0)
                 local showTween = TweenService:Create(
                     MainWindow,
-                    TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
                     {Size = UDim2.new(0, 940, 0, 520)}
                 )
                 showTween:Play()
             else
+                -- Hide menu with effects
+                hideMenuEffects()
+                
                 -- Exit animation
                 local hideTween = TweenService:Create(
                     MainWindow,
-                    TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+                    TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In),
                     {Size = UDim2.new(0, 0, 0, 0)}
                 )
                 hideTween:Play()
