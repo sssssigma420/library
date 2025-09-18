@@ -47,7 +47,7 @@ local Theme = {
     -- Effects
     Shadow = Color3.fromRGB(0, 0, 0),
     Glow = Color3.fromRGB(99, 102, 241),
-    GlassBlur = Color3.fromRGB(255, 255, 255),
+    GlassBlur = Color3.fromRGB(30, 30, 35),
 }
 
 -- Animation constants
@@ -1179,7 +1179,7 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    GlassBlur = Color3.fromRGB(30, 30, 35),
     Section.BackgroundTransparency = 0
     Section.BorderSizePixel = 0
     Section.Parent = page
@@ -1189,7 +1189,7 @@ local function createSection(page, title)
     
     local SectionBorder = Instance.new("UIStroke", Section)
     SectionBorder.Color = Theme.BorderLight
-    SectionBorder.Transparency = 0
+    SectionBorder.Transparency = 0.5
     SectionBorder.Thickness = 1
     
     -- Glass effect
