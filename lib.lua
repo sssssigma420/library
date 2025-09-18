@@ -1180,14 +1180,14 @@ local function switchToTab(name)
     CurrentTab = tabData
 end
 
--- FIXED SECTION CREATION - This was the main issue causing white backgrounds
+-- Enhanced section creation
 local function createSection(page, title)
     local Section = Instance.new("Frame")
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Theme.Surface  -- Using proper theme color
-    Section.BackgroundTransparency = 0.95  -- Much higher transparency to avoid white appearance
+    Section.BackgroundColor3 = Theme.Surface
+    Section.BackgroundTransparency = 0.05
     Section.BorderSizePixel = 0
     Section.Parent = page
     
@@ -1196,17 +1196,25 @@ local function createSection(page, title)
     
     local SectionBorder = Instance.new("UIStroke", Section)
     SectionBorder.Color = Theme.BorderLight
-    SectionBorder.Transparency = 0.7  -- Higher transparency
+    SectionBorder.Transparency = 0.5
     SectionBorder.Thickness = 1
     
-    -- REMOVED problematic glass gradient that was causing issues
-    -- Instead using simple dark background with proper transparency
+    -- Glass effect
+    local SectionGradient = Instance.new("UIGradient", Section)
+    SectionGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Theme.GlassBlur),
+        ColorSequenceKeypoint.new(1, Theme.GlassBlur)
+    })
+    SectionGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.92),
+        NumberSequenceKeypoint.new(1, 0.96)
+    })
+    SectionGradient.Rotation = 45
     
     -- Section header
     local SectionHeader = Instance.new("Frame")
     SectionHeader.Name = "Header"
     SectionHeader.Size = UDim2.new(1, 0, 0, 44)
-    SectionHeader.BackgroundTransparency = 1
     SectionHeader.Parent = Section
     
     local SectionTitle = Instance.new("TextLabel")
@@ -1252,6 +1260,20 @@ local function createSection(page, title)
     ContentPadding.PaddingBottom = UDim.new(0, 16)
     
     return Section, SectionContent
+end
+
+-- Component creation helpers
+local function createLabel(parent, text, size)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, 0, 0, size or 20)
+    Label.BackgroundTransparency = 1
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 14
+    Label.TextColor3 = Theme.Text
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Text = text
+    Label.Parent = parent
+    return Label
 end
 
 local function createBaseButton(parent, size)
