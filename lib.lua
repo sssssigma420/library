@@ -1186,7 +1186,7 @@ local function createSection(page, title)
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Section.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     Section.BackgroundTransparency = 0
     Section.BorderSizePixel = 0
     Section.Parent = page
@@ -1195,7 +1195,7 @@ local function createSection(page, title)
     SectionCorner.CornerRadius = UDim.new(0, 14)
     
     local SectionBorder = Instance.new("UIStroke", Section)
-    SectionBorder.Color = Color3.fromRGB(30, 30, 35)
+    SectionBorder.Color = Color3.fromRGB(13, 13, 13)
     SectionBorder.Transparency = 0
     SectionBorder.Thickness = 1
     
@@ -1211,7 +1211,7 @@ local function createSection(page, title)
     SectionHeader.Name = "Header"
     SectionHeader.Size = UDim2.new(1, 0, 0, 44)
     SectionHeader.Parent = Section
-    SectionHeader.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    SectionHeader.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     
     local SectionTitle = Instance.new("TextLabel")
     SectionTitle.Size = UDim2.new(1, -24, 1, 0)
@@ -1223,14 +1223,14 @@ local function createSection(page, title)
     SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
     SectionTitle.Text = title or "Section"
     SectionTitle.Parent = SectionHeader
-    SectionTitle.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    SectionTitle.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     
     -- Accent indicator
     local AccentBar = Instance.new("Frame")
     AccentBar.Name = "AccentBar"
     AccentBar.Size = UDim2.new(0, 4, 0, 20)
     AccentBar.Position = UDim2.new(0, 8, 0.5, -10)
-    AccentBar.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    AccentBar.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     AccentBar.BorderSizePixel = 0
     AccentBar.Parent = SectionHeader
     
@@ -1246,7 +1246,7 @@ local function createSection(page, title)
     SectionContent.Position = UDim2.new(0, 16, 0, 50)
     SectionContent.AutomaticSize = Enum.AutomaticSize.Y
     SectionContent.Parent = Section
-    SectionContent.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    SectionContent.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     
     local ContentLayout = Instance.new("UIListLayout", SectionContent)
     ContentLayout.FillDirection = Enum.FillDirection.Vertical
