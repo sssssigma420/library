@@ -561,7 +561,7 @@ local TabsSection = Instance.new("Frame")
 TabsSection.Name = "TabsSection"
 TabsSection.Size = UDim2.new(1, -24, 1, -280)
 TabsSection.Position = UDim2.new(0, 12, 0, 130)
-ContentArea.BackgroundTransparency = 1
+TabsSection.BackgroundTransparency = 1
 TabsSection.Parent = Sidebar
 
 local TabsList = Instance.new("UIListLayout", TabsSection)
@@ -655,13 +655,12 @@ local IndicatorBorder = Instance.new("UIStroke", OnlineIndicator)
 IndicatorBorder.Color = Theme.Background
 IndicatorBorder.Thickness = 2
 
-
+-- Content area
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
 ContentArea.Size = UDim2.new(1, -240, 1, -50)
 ContentArea.Position = UDim2.new(0, 240, 0, 50)
 ContentArea.BackgroundTransparency = 1
-ContentArea.BackgroundColor3 = Theme.Background  -- or Color3.fromRGB(15, 15, 17)
 ContentArea.Parent = MainWindow
 
 -- Pages container
@@ -813,12 +812,12 @@ local function switchToTab(name)
     for _, data in pairs(Tabs) do
         if data.Page and data.Page.Visible then
             local fadeTween = TweenService:Create(data.Page, TweenInfo.new(0.15), {
-                BackgroundTransparency = 1
+                GroupTransparency = 1
             })
             fadeTween:Play()
             fadeTween.Completed:Connect(function()
                 data.Page.Visible = false
-                data.Page.BackgroundTransparency = 0
+                data.Page.GroupTransparency = 0
             end)
         end
         
@@ -841,10 +840,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.BackgroundTransparency = 1
+    tabData.Page.GroupTransparency = 1
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        BackgroundTransparency = 0
+        GroupTransparency = 0
     })
     showTween:Play()
     
@@ -871,7 +870,7 @@ local function createSection(page, title)
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
     Section.BackgroundColor3 = Theme.Surface
-    Section.BackgroundTransparency = 1
+    Section.BackgroundTransparency = 0.05
     Section.BorderSizePixel = 0
     Section.Parent = page
     
