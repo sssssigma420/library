@@ -1211,6 +1211,7 @@ local function createSection(page, title)
     SectionHeader.Name = "Header"
     SectionHeader.Size = UDim2.new(1, 0, 0, 44)
     SectionHeader.Parent = Section
+    SectionHeader.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     
     local SectionTitle = Instance.new("TextLabel")
     SectionTitle.Size = UDim2.new(1, -24, 1, 0)
@@ -1222,13 +1223,14 @@ local function createSection(page, title)
     SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
     SectionTitle.Text = title or "Section"
     SectionTitle.Parent = SectionHeader
+    SectionTitle.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     
     -- Accent indicator
     local AccentBar = Instance.new("Frame")
     AccentBar.Name = "AccentBar"
     AccentBar.Size = UDim2.new(0, 4, 0, 20)
     AccentBar.Position = UDim2.new(0, 8, 0.5, -10)
-    AccentBar.BackgroundColor3 = Theme.Primary
+    AccentBar.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     AccentBar.BorderSizePixel = 0
     AccentBar.Parent = SectionHeader
     
