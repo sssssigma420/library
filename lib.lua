@@ -1248,7 +1248,6 @@ local function createSection(page, title)
     SectionContent.Size = UDim2.new(1, -32, 0, 0)
     SectionContent.Position = UDim2.new(0, 16, 0, 50)
     SectionContent.AutomaticSize = Enum.AutomaticSize.Y
-    SectionContent.BackgroundTransparency = 1
     SectionContent.Parent = Section
     
     local ContentLayout = Instance.new("UIListLayout", SectionContent)
