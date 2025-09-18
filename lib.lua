@@ -812,12 +812,12 @@ local function switchToTab(name)
     for _, data in pairs(Tabs) do
         if data.Page and data.Page.Visible then
             local fadeTween = TweenService:Create(data.Page, TweenInfo.new(0.15), {
-                GroupTransparency = 1
+                BackgroundTransparency = 1
             })
             fadeTween:Play()
             fadeTween.Completed:Connect(function()
                 data.Page.Visible = false
-                data.Page.GroupTransparency = 0
+                data.Page.BackgroundTransparency = 0
             end)
         end
         
@@ -840,10 +840,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.GroupTransparency = 1
+    tabData.Page.BackgroundTransparency = 1
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        GroupTransparency = 0
+        BackgroundTransparency = 0
     })
     showTween:Play()
     
