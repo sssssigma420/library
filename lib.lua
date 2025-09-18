@@ -1,7 +1,6 @@
 -- lib_modern.lua — Enhanced SketchUI with modern design, animations, and improved UX
 -- Modern glassmorphism design, smooth animations, better interactions
 -- RightShift toggles visibility.
--- FIXED VERSION - White background issue resolved
 -- API:
 --   local UI = loadfile("lib_modern.lua")()
 --   local window = UI:CreateWindow("Modern UI")
@@ -19,9 +18,9 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Modern Theme with glassmorphism and vibrant accents - FIXED VERSION
+-- Modern Theme with glassmorphism and vibrant accents
 local Theme = {
-    -- Main colors - ALL DARK, NO WHITE
+    -- Main colors
     Background = Color3.fromRGB(15, 15, 17),
     Surface = Color3.fromRGB(22, 22, 26),
     SurfaceVariant = Color3.fromRGB(28, 28, 32),
@@ -45,10 +44,10 @@ local Theme = {
     Border = Color3.fromRGB(55, 65, 81),
     BorderLight = Color3.fromRGB(75, 85, 99),
     
-    -- Effects - FIXED: NO WHITE COLORS
+    -- Effects
     Shadow = Color3.fromRGB(0, 0, 0),
     Glow = Color3.fromRGB(99, 102, 241),
-    GlassBlur = Color3.fromRGB(30, 30, 35),  -- FIXED: Was white, now dark
+    GlassBlur = Color3.fromRGB(30, 30, 35),
 }
 
 -- Animation constants
@@ -123,7 +122,7 @@ end
 
 -- Create main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ModernUI"
+ScreenGui.Name = "Vetrion.vip"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -131,6 +130,323 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 pcall(function()
     ScreenGui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
 end)
+
+task.wait(2)
+for _, obj in pairs(ScreenGui:GetDescendants()) do
+    if obj:IsA("GuiObject") and obj.BackgroundColor3 == Color3.new(1,1,1) then
+        print("WHITE FOUND:", obj.Name, obj.ClassName)
+        obj.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Turn red temporarily
+    end
+end
+-- PARTICLE EFFECTS & DIM OVERLAY SYSTEM
+-- Add this code to your library after the ScreenGui creation
+
+-- 1. CREATE DIM OVERLAY (Add after ScreenGui creation)
+local DimOverlay = Instance.new("Frame")
+DimOverlay.Name = "DimOverlay"
+DimOverlay.Size = UDim2.fromScale(1, 1)
+DimOverlay.Position = UDim2.fromScale(0, 0)
+DimOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+DimOverlay.BackgroundTransparency = 1  -- Start invisible
+DimOverlay.BorderSizePixel = 0
+DimOverlay.ZIndex = 1  -- Behind the menu
+DimOverlay.Visible = false
+DimOverlay.Parent = ScreenGui
+
+-- 2. CREATE PARTICLE SYSTEM CONTAINER
+local ParticleContainer = Instance.new("Frame")
+ParticleContainer.Name = "ParticleContainer"
+ParticleContainer.Size = UDim2.fromScale(1, 1)
+ParticleContainer.Position = UDim2.fromScale(0, 0)
+ParticleContainer.BackgroundTransparency = 1
+ParticleContainer.BorderSizePixel = 0
+ParticleContainer.ZIndex = 2  -- Above dim overlay, below menu
+ParticleContainer.Visible = false
+ParticleContainer.Parent = ScreenGui
+
+-- 3. PARTICLE CREATION FUNCTION
+local particles = {}
+local particleCount = 0
+local maxParticles = 50
+
+local function createParticle()
+    if particleCount >= maxParticles then return end
+    
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, math.random(2, 6), 0, math.random(2, 6))
+    particle.Position = UDim2.new(
+        math.random(0, 100) / 100, 0,
+        math.random(0, 100) / 100, 0
+    )
+    particle.BackgroundColor3 = Color3.fromRGB(
+        math.random(99, 255),   -- Random blue/purple/white
+        math.random(102, 200),
+        math.random(241, 255)
+    )
+    particle.BackgroundTransparency = math.random(30, 70) / 100
+    particle.BorderSizePixel = 0
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    -- Make particle round
+    local corner = Instance.new("UICorner", particle)
+    corner.CornerRadius = UDim.new(1, 0)
+    
+    -- Add glow effect
+    local glow = Instance.new("UIStroke", particle)
+    glow.Color = particle.BackgroundColor3
+    glow.Transparency = 0.7
+    glow.Thickness = 1
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    -- Animate particle
+    local moveTime = math.random(30, 60) / 10  -- 3-6 seconds
+    local endX = math.random(-20, 120) / 100
+    local endY = math.random(-20, 120) / 100
+    
+    -- Floating movement
+    local moveTween = TweenService:Create(
+        particle,
+        TweenInfo.new(moveTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+        {
+            Position = UDim2.new(endX, 0, endY, 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 0, 0, 0)
+        }
+    )
+    
+    -- Pulse effect
+    local pulseTween = TweenService:Create(
+        particle,
+        TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+        {
+            BackgroundTransparency = particle.BackgroundTransparency + 0.3
+        }
+    )
+    
+    moveTween:Play()
+    pulseTween:Play()
+    
+    -- Cleanup when animation completes
+    moveTween.Completed:Connect(function()
+        pulseTween:Cancel()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- 4. PARTICLE SPAWNER SYSTEM
+local particleConnection
+local function startParticles()
+    if particleConnection then return end
+    
+    ParticleContainer.Visible = true
+    particleConnection = RunService.Heartbeat:Connect(function()
+        if math.random(1, 10) == 1 then  -- 10% chance each frame
+            createParticle()
+        end
+    end)
+end
+
+local function stopParticles()
+    if particleConnection then
+        particleConnection:Disconnect()
+        particleConnection = nil
+    end
+    
+    -- Fade out existing particles
+    for _, particle in ipairs(particles) do
+        if particle and particle.Parent then
+            TweenService:Create(
+                particle,
+                TweenInfo.new(0.5),
+                {BackgroundTransparency = 1}
+            ):Play()
+        end
+    end
+    
+    task.wait(1)
+    ParticleContainer.Visible = false
+    
+    -- Clear particles array
+    for i = #particles, 1, -1 do
+        if particles[i] and particles[i].Parent then
+            particles[i]:Destroy()
+        end
+        table.remove(particles, i)
+    end
+    particleCount = 0
+end
+
+-- 5. MENU SHOW/HIDE EFFECTS FUNCTIONS
+local function showMenuEffects()
+    -- Show dim overlay
+    DimOverlay.Visible = true
+    DimOverlay.BackgroundTransparency = 1
+    
+    local dimTween = TweenService:Create(
+        DimOverlay,
+        TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {BackgroundTransparency = 0.6}  -- 40% dim
+    )
+    dimTween:Play()
+    
+    -- Start particles
+    startParticles()
+    
+end
+
+local function hideMenuEffects()
+    -- Hide dim overlay
+    local dimTween = TweenService:Create(
+        DimOverlay,
+        TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        {BackgroundTransparency = 1}
+    )
+    dimTween:Play()
+    
+    dimTween.Completed:Connect(function()
+        DimOverlay.Visible = false
+    end)
+    
+    -- Stop particles
+    stopParticles()
+    
+    -- Remove blur effect
+    local blurEffect = DimOverlay:GetAttribute("BlurEffect")
+    if blurEffect and blurEffect.Parent then
+        local blurTween = TweenService:Create(
+            blurEffect,
+            TweenInfo.new(0.3),
+            {Size = 0}
+        )
+        blurTween:Play()
+        
+        blurTween.Completed:Connect(function()
+            blurEffect:Destroy()
+        end)
+    end
+end
+
+-- 6. REPLACE THE EXISTING TOGGLE FUNCTIONALITY
+-- Find the RightShift input handler and replace it with this:
+
+-- 7. ADVANCED PARTICLE VARIANTS (Choose one style)
+
+-- STYLE 1: Floating Orbs (Default above)
+
+-- STYLE 2: Matrix Rain Effect
+local function createMatrixParticle()
+    if particleCount >= maxParticles then return end
+    
+    local particle = Instance.new("TextLabel")
+    particle.Size = UDim2.new(0, 8, 0, 12)
+    particle.Position = UDim2.new(math.random(0, 100) / 100, 0, -0.1, 0)
+    particle.BackgroundTransparency = 1
+    particle.BorderSizePixel = 0
+    particle.Font = Enum.Font.Code
+    particle.TextSize = 10
+    particle.TextColor3 = Color3.fromRGB(0, 255, 100)
+    particle.Text = string.char(math.random(33, 126))  -- Random character
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    -- Falling animation
+    local fallTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(40, 80) / 10, Enum.EasingStyle.Linear),
+        {
+            Position = UDim2.new(particle.Position.X.Scale, 0, 1.1, 0),
+            TextTransparency = 1
+        }
+    )
+    fallTween:Play()
+    
+    fallTween.Completed:Connect(function()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- STYLE 3: Geometric Shapes
+local function createGeometricParticle()
+    if particleCount >= maxParticles then return end
+    
+    local shapes = {"▲", "●", "■", "♦", "✦"}
+    local particle = Instance.new("TextLabel")
+    particle.Size = UDim2.new(0, math.random(8, 20), 0, math.random(8, 20))
+    particle.Position = UDim2.new(
+        math.random(0, 100) / 100, 0,
+        math.random(0, 100) / 100, 0
+    )
+    particle.BackgroundTransparency = 1
+    particle.BorderSizePixel = 0
+    particle.Font = Enum.Font.GothamBold
+    particle.TextSize = math.random(8, 16)
+    particle.TextColor3 = Theme.Primary
+    particle.Text = shapes[math.random(1, #shapes)]
+    particle.ZIndex = 3
+    particle.Parent = ParticleContainer
+    
+    -- Rotation and fade
+    local rotateTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(30, 60) / 10, Enum.EasingStyle.Linear),
+        {Rotation = 360}
+    )
+    
+    local fadeTween = TweenService:Create(
+        particle,
+        TweenInfo.new(math.random(50, 100) / 10, Enum.EasingStyle.Quad),
+        {
+            TextTransparency = 1,
+            Position = UDim2.new(
+                particle.Position.X.Scale + math.random(-20, 20) / 100,
+                0,
+                particle.Position.Y.Scale + math.random(-20, 20) / 100,
+                0
+            )
+        }
+    )
+    
+    rotateTween:Play()
+    fadeTween:Play()
+    
+    table.insert(particles, particle)
+    particleCount = particleCount + 1
+    
+    fadeTween.Completed:Connect(function()
+        rotateTween:Cancel()
+        particle:Destroy()
+        for i, p in ipairs(particles) do
+            if p == particle then
+                table.remove(particles, i)
+                particleCount = particleCount - 1
+                break
+            end
+        end
+    end)
+end
+
+-- To use different particle styles, replace the createParticle() call in startParticles()
+-- with createMatrixParticle() or createGeometricParticle()
 
 -- Enhanced loading animation
 local LoadingContainer = Instance.new("Frame")
@@ -382,10 +698,10 @@ TitleBar.Parent = MainWindow
 local TitleCorner = Instance.new("UICorner", TitleBar)
 TitleCorner.CornerRadius = UDim.new(0, 16)
 
--- Glass effect for title bar - FIXED VERSION
+-- Glass effect for title bar
 local TitleGradient = Instance.new("UIGradient", TitleBar)
 TitleGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Theme.GlassBlur),  -- Now dark instead of white
+    ColorSequenceKeypoint.new(0, Theme.GlassBlur),
     ColorSequenceKeypoint.new(1, Theme.GlassBlur)
 })
 TitleGradient.Transparency = NumberSequence.new({
@@ -587,10 +903,10 @@ UserBorder.Color = Theme.BorderLight
 UserBorder.Transparency = 0.7
 UserBorder.Thickness = 1
 
--- Glass effect for user section - FIXED VERSION
+-- Glass effect for user section
 local UserGradient = Instance.new("UIGradient", UserSection)
 UserGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Theme.GlassBlur),  -- Now dark
+    ColorSequenceKeypoint.new(0, Theme.GlassBlur),
     ColorSequenceKeypoint.new(1, Theme.GlassBlur)
 })
 UserGradient.Transparency = NumberSequence.new({
@@ -656,34 +972,21 @@ local IndicatorBorder = Instance.new("UIStroke", OnlineIndicator)
 IndicatorBorder.Color = Theme.Background
 IndicatorBorder.Thickness = 2
 
--- Content area - FIXED VERSION
+-- Content area
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
 ContentArea.Size = UDim2.new(1, -240, 1, -50)
 ContentArea.Position = UDim2.new(0, 240, 0, 50)
-ContentArea.BackgroundColor3 = Theme.Background  -- FIXED: Explicit dark background
-ContentArea.BackgroundTransparency = 0  -- FIXED: Make it opaque
-ContentArea.BorderSizePixel = 0
+ContentArea.BackgroundTransparency = 1
 ContentArea.Parent = MainWindow
 
--- Pages container - FIXED VERSION
+-- Pages container
 local PagesContainer = Instance.new("Frame")
 PagesContainer.Name = "PagesContainer"
 PagesContainer.Size = UDim2.new(1, -24, 1, -24)
 PagesContainer.Position = UDim2.new(0, 12, 0, 12)
-PagesContainer.BackgroundColor3 = Theme.Surface  -- FIXED: Dark background
-PagesContainer.BackgroundTransparency = 0  -- FIXED: Opaque
-PagesContainer.BorderSizePixel = 0
+PagesContainer.BackgroundTransparency = 1
 PagesContainer.Parent = ContentArea
-
--- Add corner and border to pages container
-local PagesCorner = Instance.new("UICorner", PagesContainer)
-PagesCorner.CornerRadius = UDim.new(0, 12)
-
-local PagesBorder = Instance.new("UIStroke", PagesContainer)
-PagesBorder.Color = Theme.Border
-PagesBorder.Transparency = 0.7
-PagesBorder.Thickness = 1
 
 -- Internal storage
 local Tabs = {}
@@ -781,7 +1084,7 @@ local function createTabButton(name, icon)
     return TabButton, TabIcon, TabName
 end
 
--- Enhanced page creation - FIXED VERSION
+-- Enhanced page creation
 local function createPage()
     local Page = Instance.new("ScrollingFrame")
     Page.Name = "Page"
@@ -789,15 +1092,10 @@ local function createPage()
     Page.CanvasSize = UDim2.new(0, 0, 0, 0)
     Page.ScrollBarThickness = 6
     Page.ScrollingDirection = Enum.ScrollingDirection.Y
-    Page.BackgroundColor3 = Theme.SurfaceVariant  -- FIXED: Dark background
-    Page.BackgroundTransparency = 0  -- FIXED: Opaque
+    Page.BackgroundTransparency = 1
     Page.BorderSizePixel = 0
     Page.Visible = false
     Page.Parent = PagesContainer
-    
-    -- Add corner to page
-    local PageCorner = Instance.new("UICorner", Page)
-    PageCorner.CornerRadius = UDim.new(0, 8)
     
     -- Custom scrollbar styling
     Page.ScrollBarImageColor3 = Theme.Primary
@@ -831,12 +1129,12 @@ local function switchToTab(name)
     for _, data in pairs(Tabs) do
         if data.Page and data.Page.Visible then
             local fadeTween = TweenService:Create(data.Page, TweenInfo.new(0.15), {
-                GroupTransparency = 1
+                BackgroundTransparency = 0
             })
             fadeTween:Play()
             fadeTween.Completed:Connect(function()
                 data.Page.Visible = false
-                data.Page.GroupTransparency = 0
+                data.Page.BackgroundTransparency = 0
             end)
         end
         
@@ -859,10 +1157,10 @@ local function switchToTab(name)
     -- Show selected page
     task.wait(0.15)
     tabData.Page.Visible = true
-    tabData.Page.GroupTransparency = 1
+    tabData.Page.BackgroundTransparency = 0
     
     local showTween = TweenService:Create(tabData.Page, TweenInfo.new(0.2), {
-        GroupTransparency = 0
+        BackgroundTransparency = 0
     })
     showTween:Play()
     
@@ -882,14 +1180,14 @@ local function switchToTab(name)
     CurrentTab = tabData
 end
 
--- Enhanced section creation - COMPLETELY FIXED VERSION
+-- Enhanced section creation
 local function createSection(page, title)
     local Section = Instance.new("Frame")
     Section.Name = "Section"
     Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
-    Section.BackgroundColor3 = Color3.fromRGB(32, 32, 38)  -- FIXED: Solid dark color
-    Section.BackgroundTransparency = 0  -- FIXED: Completely opaque
+    Section.BackgroundColor3 = Theme.Surface
+    Section.BackgroundTransparency = 0.05
     Section.BorderSizePixel = 0
     Section.Parent = page
     
@@ -898,10 +1196,20 @@ local function createSection(page, title)
     
     local SectionBorder = Instance.new("UIStroke", Section)
     SectionBorder.Color = Theme.BorderLight
-    SectionBorder.Transparency = 0.6
+    SectionBorder.Transparency = 0.5
     SectionBorder.Thickness = 1
     
-    -- REMOVED GLASS GRADIENT - NO MORE WHITE ISSUES
+    -- Glass effect
+    local SectionGradient = Instance.new("UIGradient", Section)
+    SectionGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Theme.GlassBlur),
+        ColorSequenceKeypoint.new(1, Theme.GlassBlur)
+    })
+    SectionGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.92),
+        NumberSequenceKeypoint.new(1, 0.96)
+    })
+    SectionGradient.Rotation = 45
     
     -- Section header
     local SectionHeader = Instance.new("Frame")
@@ -935,20 +1243,14 @@ local function createSection(page, title)
     
     registerAccent(AccentBar, "BackgroundColor3")
     
-    -- Section content - FIXED VERSION
+    -- Section content
     local SectionContent = Instance.new("Frame")
     SectionContent.Name = "Content"
     SectionContent.Size = UDim2.new(1, -32, 0, 0)
     SectionContent.Position = UDim2.new(0, 16, 0, 50)
     SectionContent.AutomaticSize = Enum.AutomaticSize.Y
-    SectionContent.BackgroundColor3 = Color3.fromRGB(28, 28, 34)  -- FIXED: Slightly darker than section
-    SectionContent.BackgroundTransparency = 0  -- FIXED: Opaque
-    SectionContent.BorderSizePixel = 0
+    SectionContent.BackgroundTransparency = 1
     SectionContent.Parent = Section
-    
-    -- Add corner to content
-    local ContentCorner = Instance.new("UICorner", SectionContent)
-    ContentCorner.CornerRadius = UDim.new(0, 10)
     
     local ContentLayout = Instance.new("UIListLayout", SectionContent)
     ContentLayout.FillDirection = Enum.FillDirection.Vertical
@@ -956,10 +1258,7 @@ local function createSection(page, title)
     ContentLayout.Padding = UDim.new(0, 12)
     
     local ContentPadding = Instance.new("UIPadding", SectionContent)
-    ContentPadding.PaddingTop = UDim.new(0, 12)
-    ContentPadding.PaddingBottom = UDim2.new(0, 16)
-    ContentPadding.PaddingLeft = UDim.new(0, 12)
-    ContentPadding.PaddingRight = UDim.new(0, 12)
+    ContentPadding.PaddingBottom = UDim.new(0, 16)
     
     return Section, SectionContent
 end
