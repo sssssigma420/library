@@ -1184,7 +1184,7 @@ end
 local function createSection(page, title)
     local Section = Instance.new("Frame")
     Section.Name = "Section"
-    Section.Size = UDim2.new(1, 1, 1, 1)
+    Section.Size = UDim2.new(1, 0, 0, 0)
     Section.AutomaticSize = Enum.AutomaticSize.Y
     Section.BackgroundColor3 = Theme.Primary
     Section.BackgroundTransparency = 1
@@ -1244,7 +1244,7 @@ local function createSection(page, title)
     SectionContent.Position = UDim2.new(0, 16, 0, 50)
     SectionContent.AutomaticSize = Enum.AutomaticSize.Y
     SectionContent.Parent = Section
-    SectionContent.Color3 = Theme.Primary
+    SectionContent.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     
     local ContentLayout = Instance.new("UIListLayout", SectionContent)
     ContentLayout.FillDirection = Enum.FillDirection.Vertical
